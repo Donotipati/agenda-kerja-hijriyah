@@ -1,0 +1,19 @@
+{
+  "name": "agenda-kerja",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agenda Kerja PWA packaged for Android with native scheduled notifications",
+  "scripts": {
+    "sync": "cap sync android",
+    "open": "cap open android",
+    "copy": "cap copy android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/local-notifications": "^7.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}

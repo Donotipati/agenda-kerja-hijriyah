@@ -1,0 +1,17 @@
+{
+  "name": "Agenda Kerja — Rencana & Evaluasi Kegiatan",
+  "short_name": "Agenda Kerja",
+  "description": "Rencana kerja (RENJA), evaluasi kegiatan, dan kegiatan insidentil — 100% tersimpan di perangkat, tanpa server.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B2838",
+  "theme_color": "#1B2838",
+  "lang": "id",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
