@@ -55,6 +55,10 @@
   }
   .month-widget button{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--paper);width:30px;height:30px;border-radius:8px;font-size:15px;cursor:pointer;}
   .month-widget .label{font-size:17px;font-weight:700;text-align:center;flex:1;}
+  /* Sheet picker Hijriyah punya background terang (bukan gelap kayak header), jadi tombol/label perlu warna kontras sendiri */
+  #hijriDatePickerBackdrop .month-widget{background:var(--paper-line);border-color:var(--paper-line);}
+  #hijriDatePickerBackdrop .month-widget button{background:#fff;border-color:var(--paper-line);color:var(--ink);}
+  #hijriDatePickerBackdrop .month-widget .label{color:var(--ink);}
 
   .header-stat-line{margin:12px 2px 2px;font-size:12px;color:#A9B4BF;text-align:center;}
   .header-stat-line b{color:var(--paper);}
@@ -487,13 +491,21 @@
 <div class="sheet-backdrop" id="hijriDatePickerBackdrop">
   <div class="sheet">
     <div class="sheet-handle"></div><h2>Pilih Tanggal Hijriyah</h2>
-    <p class="sub" id="hijriPickerGregorianInfo">Padanan Masehi: —</p>
-    <div class="row2" style="gap:8px;">
-      <div class="field" style="margin:0;flex:1;"><label>Tanggal</label><select id="hijriPickerDay"></select></div>
-      <div class="field" style="margin:0;flex:1.8;"><label>Bulan</label><select id="hijriPickerMonth"></select></div>
-      <div class="field" style="margin:0;flex:1.4;"><label>Tahun</label><select id="hijriPickerYear"></select></div>
+    <div class="month-widget" style="margin:10px 0 12px;">
+      <button id="hijriPickerPrevMonth">‹</button>
+      <span style="flex:1;text-align:center;">
+        <span class="label" id="hijriPickerMonthLabel">—</span>
+      </span>
+      <button id="hijriPickerNextMonth">›</button>
     </div>
-    <div class="btn-row" style="margin-top:14px;"><button class="btn btn-ghost" id="btnHijriDateCancel">Batal</button><button class="btn btn-primary" id="btnHijriDateSave">Pilih</button></div>
+    <div class="cal-dow-row">
+      <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+    </div>
+    <div class="cal-grid-wrap" style="margin-bottom:0;">
+      <div class="cal-grid" id="hijriPickerGridArea"></div>
+    </div>
+    <p class="sub" id="hijriPickerGregorianInfo" style="margin-top:10px;">Padanan Masehi: —</p>
+    <div class="btn-row" style="margin-top:6px;"><button class="btn btn-ghost" id="btnHijriDateCancel" style="width:100%;">Batal</button></div>
   </div>
 </div>
 
@@ -831,33 +843,57 @@ function hijriMonthRangeLabel(){var p=viewPeriod();if(!p.start||!p.next)return "
 function hijriDateLabel(d){var h=dateToHijri(d);return h.day+" "+HIJRI_MONTHS[h.month-1]+" "+h.year+" H";}
 function fullDateLabel(d){return hijriDateLabel(d)+" • "+gregorianDateLabel(d);}
 
-// ---------- Hijri date picker ----------
+// ---------- Hijri date picker (kalender grid, sama gayanya kayak Beranda) ----------
 var activeHijriDateField=null;
+var pickerViewHijri=null;   // {year, month} — bulan yang lagi ditampilkan di picker (independen dari view Beranda)
+var pickerSelectedISO=null; // tanggal yang lagi dipilih di picker
 function setHijriField(fieldId,iso){var el=document.getElementById(fieldId);if(!el)return;el.dataset.iso=iso||"";el.value=iso?fullDateLabel(isoToDate(iso)):"";}
 function getHijriFieldISO(fieldId){var el=document.getElementById(fieldId);return el?(el.dataset.iso||""):"";}
 function daysInHijriMonth(hy,hm){var p=getHijriPeriod(hy,hm);return p.start&&p.next?Math.round((p.next-p.start)/86400000):30;}
-function refreshHijriPickerInfo(){
-  var y=Number(hijriPickerYear.value),m=Number(hijriPickerMonth.value),d=Number(hijriPickerDay.value),st=findGregorianForHijri(y,m);
-  var iso=st?gregorianDateToISO(new Date(st.getFullYear(),st.getMonth(),st.getDate()+d-1)):"";
-  hijriPickerGregorianInfo.textContent=iso?"Padanan Masehi: "+gregorianDateLabel(isoToDate(iso)):"Padanan Masehi: —";
+function renderHijriPickerGrid(){
+  var el=document.getElementById("hijriPickerGridArea"); if(!el) return;
+  el.innerHTML="";
+  document.getElementById("hijriPickerMonthLabel").textContent = HIJRI_MONTHS[pickerViewHijri.month-1]+" "+pickerViewHijri.year+" H";
+  var p=getHijriPeriod(pickerViewHijri.year,pickerViewHijri.month);
+  if(!p.start||!p.next) return;
+  var start=p.start, days=Math.round((p.next-start)/86400000), offset=start.getDay();
+  var todayStr=todayISO();
+  for(var i=0;i<42;i++){
+    var n=i-offset, d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+n), iso=gregorianDateToISO(d), inside=n>=0&&n<days, h=dateToHijri(d);
+    var cell=document.createElement("div");
+    cell.className="cal-cell"+(inside?"":" muted")+(iso===todayStr?" today":"")+(iso===pickerSelectedISO?" selected":"");
+    cell.innerHTML='<span class="cn">'+h.day+'</span><span class="ch">'+d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)+'</span>';
+    if(inside){
+      cell.addEventListener("click",(function(ds){return function(){
+        pickerSelectedISO=ds;
+        if(activeHijriDateField){ setHijriField(activeHijriDateField,ds); }
+        hijriDatePickerBackdrop.classList.remove("open");
+      };})(iso));
+    }
+    el.appendChild(cell);
+  }
+  document.getElementById("hijriPickerGregorianInfo").textContent = pickerSelectedISO ? "Padanan Masehi: "+gregorianDateLabel(isoToDate(pickerSelectedISO)) : "Padanan Masehi: —";
 }
-function populateHijriPicker(initialISO){
-  var base=initialISO?dateToHijri(isoToDate(initialISO)):currentViewHijri();
-  hijriPickerYear.innerHTML="";hijriPickerMonth.innerHTML="";hijriPickerDay.innerHTML="";
-  for(var y=base.year-3;y<=base.year+3;y++){var o=document.createElement("option");o.value=y;o.textContent=y+" H";hijriPickerYear.appendChild(o);}
-  for(var m=1;m<=12;m++){var mo=document.createElement("option");mo.value=m;mo.textContent=HIJRI_MONTHS[m-1];hijriPickerMonth.appendChild(mo);}
-  hijriPickerYear.value=base.year;hijriPickerMonth.value=base.month;
-  function refill(){var max=daysInHijriMonth(Number(hijriPickerYear.value),Number(hijriPickerMonth.value));hijriPickerDay.innerHTML="";for(var d=1;d<=max;d++){var o=document.createElement("option");o.value=d;o.textContent=d;hijriPickerDay.appendChild(o);}hijriPickerDay.value=Math.min(base.day,max);refreshHijriPickerInfo();}
-  hijriPickerYear.onchange=refill;hijriPickerMonth.onchange=refill;hijriPickerDay.onchange=refreshHijriPickerInfo;refill();
+function openHijriDatePicker(fieldId){
+  activeHijriDateField=fieldId;
+  var iso=getHijriFieldISO(fieldId)||todayISO();
+  pickerSelectedISO=getHijriFieldISO(fieldId)||null;
+  var base=dateToHijri(isoToDate(iso));
+  pickerViewHijri={year:base.year,month:base.month};
+  renderHijriPickerGrid();
+  hijriDatePickerBackdrop.classList.add("open");
 }
-function openHijriDatePicker(fieldId){activeHijriDateField=fieldId;populateHijriPicker(getHijriFieldISO(fieldId)||todayISO());hijriDatePickerBackdrop.classList.add("open");}
 ["rTanggal","eTanggalAktual","iTanggal"].forEach(function(fid){var el=document.getElementById(fid);if(el)el.addEventListener("click",function(){openHijriDatePicker(fid);});});
+document.getElementById("hijriPickerPrevMonth").addEventListener("click",function(){
+  var m=pickerViewHijri.month-1,y=pickerViewHijri.year; if(m<1){m=12;y--;}
+  pickerViewHijri={year:y,month:m}; renderHijriPickerGrid();
+});
+document.getElementById("hijriPickerNextMonth").addEventListener("click",function(){
+  var m=pickerViewHijri.month+1,y=pickerViewHijri.year; if(m>12){m=1;y++;}
+  pickerViewHijri={year:y,month:m}; renderHijriPickerGrid();
+});
 btnHijriDateCancel.addEventListener("click",function(){hijriDatePickerBackdrop.classList.remove("open");});
 hijriDatePickerBackdrop.addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
-btnHijriDateSave.addEventListener("click",function(){
-  var y=Number(hijriPickerYear.value),m=Number(hijriPickerMonth.value),d=Number(hijriPickerDay.value),st=findGregorianForHijri(y,m);if(!st||!activeHijriDateField)return;
-  setHijriField(activeHijriDateField,gregorianDateToISO(new Date(st.getFullYear(),st.getMonth(),st.getDate()+d-1)));hijriDatePickerBackdrop.classList.remove("open");
-});
 
 // ---------- computation helpers ----------
 function computeKegiatanTotals(pelaksanaBreakdown, mobilBensin, mobilEtoll, tarifMamin, targetPeserta){
