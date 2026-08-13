@@ -509,6 +509,20 @@
   </div>
 </div>
 
+<!-- ============ SHEET: Preview Kegiatan di Tanggal Terpilih (dari Picker) ============ -->
+<div class="sheet-backdrop" id="pickerDayPreviewBackdrop" style="z-index:56;">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="pickerDayPreviewTitle">Kegiatan pada tanggal ini</h2>
+    <p class="sub" id="pickerDayPreviewSub"></p>
+    <div id="pickerDayPreviewList"></div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-ghost" id="btnPickerDayPreviewBack">Kembali</button>
+      <button class="btn btn-primary" id="btnPickerDayPreviewChoose">Pilih Tanggal Ini</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ SHEET: Generic Picker ============ -->
 <div class="sheet-backdrop" id="pickerSheetBackdrop">
   <div class="sheet">
@@ -533,7 +547,11 @@
     <div class="field"><label>Jenis Kegiatan</label><input type="text" id="rJenis" placeholder="mis. Rapat Koordinasi"></div>
     <div class="field"><label>Target Kegiatan</label><input type="text" id="rTarget" placeholder="Tujuan/output yang ingin dicapai"></div>
     <div class="field"><label>Sasaran</label><input type="text" id="rSasaran" placeholder="Siapa/apa yang jadi objek kegiatan"></div>
-    <div class="field"><label>Volume Kegiatan</label><input type="text" id="rVolume" placeholder="mis. 1 kali, 20 orang"></div>
+    <div class="field" id="rJumlahPelaksanaanWrap">
+      <label>Jumlah Pelaksanaan Bulan Ini</label>
+      <input type="number" id="rJumlahPelaksanaan" min="1" step="1" placeholder="1">
+      <p class="field-hint-after">Isi lebih dari 1 kalau kegiatan yang sama akan dilaksanakan beberapa kali bulan ini (mis. rapat 2x). Sistem akan minta pilih tanggal tiap pelaksanaannya dan otomatis mengelompokkannya sebagai satu Rangkaian.</p>
+    </div>
     <div class="field"><label>Target Peserta</label><input type="text" inputmode="numeric" id="rTargetPeserta" placeholder="Jumlah peserta/audiens yang diharapkan hadir"></div>
     <div class="field">
       <label>Durasi Kegiatan</label>
@@ -860,26 +878,89 @@ function renderHijriPickerGrid(){
   var todayStr=todayISO();
   for(var i=0;i<42;i++){
     var n=i-offset, d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+n), iso=gregorianDateToISO(d), inside=n>=0&&n<days, h=dateToHijri(d);
+    var has=inside&&state.kegiatan.some(function(k){return k.tanggal===iso;});
     var cell=document.createElement("div");
     cell.className="cal-cell"+(inside?"":" muted")+(iso===todayStr?" today":"")+(iso===pickerSelectedISO?" selected":"");
-    cell.innerHTML='<span class="cn">'+h.day+'</span><span class="ch">'+d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)+'</span>';
+    cell.innerHTML='<span class="cn">'+h.day+'</span><span class="ch">'+d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)+'</span>'+(has?'<span class="cd"></span>':'');
     if(inside){
-      cell.addEventListener("click",(function(ds){return function(){
-        pickerSelectedISO=ds;
-        if(activeHijriDateField){ setHijriField(activeHijriDateField,ds); }
-        hijriDatePickerBackdrop.classList.remove("open");
-      };})(iso));
+      cell.addEventListener("click",(function(ds,hasKeg){return function(){
+        if(hasKeg){ openPickerDayPreview(ds); }
+        else { choosePickerDate(ds); }
+      };})(iso,has));
     }
     el.appendChild(cell);
   }
   document.getElementById("hijriPickerGregorianInfo").textContent = pickerSelectedISO ? "Padanan Masehi: "+gregorianDateLabel(isoToDate(pickerSelectedISO)) : "Padanan Masehi: —";
 }
+function choosePickerDate(iso){
+  pickerSelectedISO=iso;
+  if(pickerMode==="collect"){
+    hijriDatePickerBackdrop.classList.remove("open");
+    var cb=pickerCollectCallback; pickerCollectCallback=null; pickerCollectCancelCallback=null;
+    if(cb) cb(iso);
+    return;
+  }
+  if(activeHijriDateField){ setHijriField(activeHijriDateField,iso); }
+  hijriDatePickerBackdrop.classList.remove("open");
+}
+var pickerPreviewISO=null;
+function openPickerDayPreview(iso){
+  pickerPreviewISO=iso;
+  var d=isoToDate(iso);
+  document.getElementById("pickerDayPreviewSub").textContent = fullDateLabel(d)+" • "+gregorianDateLabel(d);
+  var keg = state.kegiatan.filter(function(k){ return k.tanggal===iso; });
+  var listEl = document.getElementById("pickerDayPreviewList");
+  listEl.innerHTML = "";
+  if(keg.length===0){
+    listEl.innerHTML = '<p class="empty-note">Tidak ada kegiatan pada tanggal ini.</p>';
+  } else {
+    keg.forEach(function(k){
+      var status = kegiatanStatusBadge(k);
+      var row = document.createElement("div");
+      row.className = "keg-row";
+      row.style.cursor = "default";
+      row.innerHTML =
+        '<div class="keg-mid"><p class="keg-title">'+escapeHtml(k.jenisKegiatan||"(Tanpa nama)")+'</p><p class="keg-sub">'+escapeHtml(k.tempat||"-")+'</p>'+
+        '<div class="keg-tags"><span class="tag '+status.cls+'">'+status.label+'</span></div></div>';
+      listEl.appendChild(row);
+    });
+  }
+  pickerDayPreviewBackdrop.classList.add("open");
+}
+document.getElementById("btnPickerDayPreviewBack").addEventListener("click", function(){
+  pickerDayPreviewBackdrop.classList.remove("open");
+});
+document.getElementById("btnPickerDayPreviewChoose").addEventListener("click", function(){
+  pickerDayPreviewBackdrop.classList.remove("open");
+  if(pickerPreviewISO) choosePickerDate(pickerPreviewISO);
+});
+pickerDayPreviewBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
 function openHijriDatePicker(fieldId){
+  pickerMode="field";
   activeHijriDateField=fieldId;
   var iso=getHijriFieldISO(fieldId)||todayISO();
   pickerSelectedISO=getHijriFieldISO(fieldId)||null;
   var base=dateToHijri(isoToDate(iso));
   pickerViewHijri={year:base.year,month:base.month};
+  document.querySelector("#hijriDatePickerBackdrop h2").textContent="Pilih Tanggal Hijriyah";
+  renderHijriPickerGrid();
+  hijriDatePickerBackdrop.classList.add("open");
+}
+// Mode "collect": dipakai fitur Jumlah Pelaksanaan buat ngumpulin beberapa tanggal berturut-turut
+// tanpa nulis ke field manapun — tiap tanggal terpilih dilempar ke callback, bukan disimpan ke input.
+var pickerMode="field";
+var pickerCollectCallback=null;
+var pickerCollectCancelCallback=null;
+function openHijriDatePickerCollect(titleText, anchorISO, onPick, onCancel){
+  pickerMode="collect";
+  activeHijriDateField=null;
+  pickerCollectCallback=onPick;
+  pickerCollectCancelCallback=onCancel||null;
+  var iso=anchorISO||todayISO();
+  pickerSelectedISO=null;
+  var base=dateToHijri(isoToDate(iso));
+  pickerViewHijri={year:base.year,month:base.month};
+  document.querySelector("#hijriDatePickerBackdrop h2").textContent=titleText;
   renderHijriPickerGrid();
   hijriDatePickerBackdrop.classList.add("open");
 }
@@ -892,7 +973,13 @@ document.getElementById("hijriPickerNextMonth").addEventListener("click",functio
   var m=pickerViewHijri.month+1,y=pickerViewHijri.year; if(m>12){m=1;y++;}
   pickerViewHijri={year:y,month:m}; renderHijriPickerGrid();
 });
-btnHijriDateCancel.addEventListener("click",function(){hijriDatePickerBackdrop.classList.remove("open");});
+btnHijriDateCancel.addEventListener("click",function(){
+  hijriDatePickerBackdrop.classList.remove("open");
+  if(pickerMode==="collect"){
+    var cb=pickerCollectCancelCallback; pickerCollectCallback=null; pickerCollectCancelCallback=null; pickerMode="field";
+    if(cb) cb();
+  }
+});
 hijriDatePickerBackdrop.addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
 
 // ---------- computation helpers ----------
@@ -1107,13 +1194,34 @@ document.getElementById("btnRealisasiGlobalSave").addEventListener("click", func
 });
 formatNumberInput(document.getElementById("gRealisasiInput"));
 
-document.getElementById("btnSalinReguler").addEventListener("click",function(){
+document.getElementById("btnSalinReguler").addEventListener("click",async function(){
   var h=currentViewHijri(),py=h.year,pm=h.month-1;if(pm<1){pm=12;py--;}
   var prev=state.kegiatan.filter(function(k){var x=dateToHijri(isoToDate(k.tanggal));return k.isReguler&&x.year===py&&x.month===pm;});
   if(prev.length===0){toast("Tidak ada kegiatan reguler di bulan Hijriyah sebelumnya");return;}
+
+  // Cegah duplikat: kegiatan yang sumbernya (sumberRefId) udah pernah disalin ke bulan yang lagi
+  // dilihat sekarang dilewatin, biar aman walau tombolnya kepencet berkali-kali gak sengaja.
+  var alreadyCopiedRefIds = {};
+  state.kegiatan.forEach(function(k){
+    if(!k.sumberRefId) return;
+    var x=dateToHijri(isoToDate(k.tanggal));
+    if(x.year===h.year && x.month===h.month) alreadyCopiedRefIds[k.sumberRefId]=true;
+  });
+  var toCopy = prev.filter(function(k){ return !alreadyCopiedRefIds[k.id]; });
+  var skipped = prev.length - toCopy.length;
+
+  if(toCopy.length===0){
+    toast("Semua "+prev.length+" kegiatan reguler sudah pernah disalin ke bulan ini");
+    return;
+  }
+  var msg = "Salin "+toCopy.length+" kegiatan reguler ke bulan "+HIJRI_MONTHS[h.month-1]+" "+h.year+" H?"+(skipped>0?" ("+skipped+" lainnya sudah pernah disalin sebelumnya, akan dilewati.)":"");
+  var ok = await showConfirm(msg, "Salin");
+  if(!ok) return;
+
   var target=findGregorianForHijri(h.year,h.month),max=daysInHijriMonth(h.year,h.month),added=0;
-  prev.forEach(function(k){var oh=dateToHijri(isoToDate(k.tanggal)),day=Math.min(oh.day,max),nd=gregorianDateToISO(new Date(target.getFullYear(),target.getMonth(),target.getDate()+day-1)),copy=JSON.parse(JSON.stringify(k));copy.id=uid();copy.tanggal=nd;copy.sumberKegiatan="reguler";copy.sumberRefId=k.id;copy.evaluasi=null;copy.createdAt=Date.now();state.kegiatan.push(copy);added++;});
-  save();renderAll();toast(added+" kegiatan reguler disalin ke bulan Hijriyah ini");
+  toCopy.forEach(function(k){var oh=dateToHijri(isoToDate(k.tanggal)),day=Math.min(oh.day,max),nd=gregorianDateToISO(new Date(target.getFullYear(),target.getMonth(),target.getDate()+day-1)),copy=JSON.parse(JSON.stringify(k));copy.id=uid();copy.tanggal=nd;copy.sumberKegiatan="reguler";copy.sumberRefId=k.id;copy.evaluasi=null;copy.createdAt=Date.now();state.kegiatan.push(copy);added++;});
+  save();renderAll();
+  toast(added+" kegiatan reguler disalin"+(skipped>0?" ("+skipped+" dilewati karena sudah ada)":""));
 });
 
 // ================= INSIDENTIL TAB =================
@@ -1415,7 +1523,8 @@ function openRenjaForm(k, prefill){
   document.getElementById("rJenis").value = k ? (k.jenisKegiatan||"") : (prefill&&prefill.jenisKegiatan ? prefill.jenisKegiatan : "");
   document.getElementById("rTarget").value = k ? (k.targetKegiatan||"") : (prefill&&prefill.targetKegiatan ? prefill.targetKegiatan : "");
   document.getElementById("rSasaran").value = k ? (k.sasaran||"") : (prefill&&prefill.sasaran ? prefill.sasaran : "");
-  document.getElementById("rVolume").value = k ? (k.volumeKegiatan||"") : "";
+  document.getElementById("rJumlahPelaksanaan").value = "";
+  document.getElementById("rJumlahPelaksanaanWrap").style.display = k ? "none" : "block";
   document.getElementById("rTargetPeserta").value = k ? (k.targetPeserta||"") : "";
   document.getElementById("rRangkaian").value = k ? (k.namaRangkaian||"") : "";
   document.getElementById("rSupir").value = k ? (k.kendaraan&&k.kendaraan.supir||"") : "";
@@ -1456,27 +1565,21 @@ function openRenjaForm(k, prefill){
 document.getElementById("btnRenjaCancel").addEventListener("click", function(){ renjaFormBackdrop.classList.remove("open"); });
 renjaFormBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
 
-document.getElementById("btnRenjaSave").addEventListener("click", function(){
-  var tanggal = getHijriFieldISO("rTanggal");
+function buildRenjaRecordFromForm(tanggal){
   var jenis = document.getElementById("rJenis").value.trim();
-  if(!tanggal){ toast("Pilih tanggal dulu"); return; }
-  if(!jenis){ toast("Isi jenis kegiatan dulu"); return; }
-
   var breakdown = getPelaksanaBreakdown();
   var bensin = getRawNumber(rBensinInput);
   var etoll = getRawNumber(rEtollInput);
   var targetPesertaVal = parseInt(document.getElementById("rTargetPeserta").value,10)||0;
   var tarifMaminAktif = state.currentDurasi==="panjang" ? state.settings.tarifMaminPanjang : state.settings.tarifMaminPendek;
   var calc = computeKegiatanTotals(breakdown, bensin, etoll, tarifMaminAktif, targetPesertaVal);
-
-  var record = {
+  return {
     tanggal: tanggal,
     jam: document.getElementById("rJam").value,
     tempat: document.getElementById("rTempat").value.trim(),
     jenisKegiatan: jenis,
     targetKegiatan: document.getElementById("rTarget").value.trim(),
     sasaran: document.getElementById("rSasaran").value.trim(),
-    volumeKegiatan: document.getElementById("rVolume").value.trim(),
     targetPeserta: parseInt(document.getElementById("rTargetPeserta").value,10)||0,
     namaRangkaian: document.getElementById("rRangkaian").value.trim(),
     durasi: state.currentDurasi,
@@ -1491,6 +1594,58 @@ document.getElementById("btnRenjaSave").addEventListener("click", function(){
     totalAnggaranAjuan: calc.total,
     isReguler: state.currentIsReguler
   };
+}
+
+// Buat N kegiatan sekaligus dari beberapa tanggal (fitur Jumlah Pelaksanaan), digabung
+// jadi 1 Rangkaian otomatis (namaRangkaian dipaksa = jenis kegiatan, terlepas isian manual).
+function finalizeVolumeDuplicates(dates){
+  var groupId = uid();
+  var jenis = document.getElementById("rJenis").value.trim();
+  dates.forEach(function(tgl, i){
+    var record = buildRenjaRecordFromForm(tgl);
+    record.namaRangkaian = jenis;
+    record.id = uid();
+    record.createdAt = Date.now();
+    record.sumberKegiatan = state.pendingSumberKegiatan || "baru";
+    record.sumberRefId = state.pendingSumberRefId || null;
+    record.evaluasi = null;
+    record.volumeGroupId = groupId;
+    record.volumeSesiIndex = i+1;
+    record.volumeSesiTotal = dates.length;
+    state.kegiatan.push(record);
+    scheduleAgendaNotification(record,"renja");
+  });
+  state.pendingSumberKegiatan = null;
+  state.pendingSumberRefId = null;
+  save(); renderAll();
+  renjaFormBackdrop.classList.remove("open");
+  toast(dates.length+" kegiatan dibuat dalam 1 Rangkaian");
+}
+
+document.getElementById("btnRenjaSave").addEventListener("click", function(){
+  var tanggal = getHijriFieldISO("rTanggal");
+  var jenis = document.getElementById("rJenis").value.trim();
+  if(!tanggal){ toast("Pilih tanggal dulu"); return; }
+  if(!jenis){ toast("Isi jenis kegiatan dulu"); return; }
+
+  var jumlah = parseInt(document.getElementById("rJumlahPelaksanaan").value,10)||1;
+  if(!state.editingKegiatanId && jumlah>=2){
+    var collected=[tanggal];
+    function askNextSesi(){
+      if(collected.length>=jumlah){ finalizeVolumeDuplicates(collected); return; }
+      var sesiKe=collected.length+1;
+      openHijriDatePickerCollect("Pilih Tanggal Sesi "+sesiKe+" dari "+jumlah, tanggal, function(iso){
+        collected.push(iso);
+        askNextSesi();
+      }, function(){
+        toast("Dibatalkan, kegiatan belum tersimpan");
+      });
+    }
+    askNextSesi();
+    return;
+  }
+
+  var record = buildRenjaRecordFromForm(tanggal);
 
   if(state.editingKegiatanId){
     var idx = state.kegiatan.findIndex(function(k){ return k.id===state.editingKegiatanId; });
@@ -1500,6 +1655,9 @@ document.getElementById("btnRenjaSave").addEventListener("click", function(){
       record.sumberKegiatan = state.kegiatan[idx].sumberKegiatan;
       record.sumberRefId = state.kegiatan[idx].sumberRefId;
       record.evaluasi = state.kegiatan[idx].evaluasi;
+      record.volumeGroupId = state.kegiatan[idx].volumeGroupId;
+      record.volumeSesiIndex = state.kegiatan[idx].volumeSesiIndex;
+      record.volumeSesiTotal = state.kegiatan[idx].volumeSesiTotal;
       state.kegiatan[idx] = record;
     }
     toast("Kegiatan diperbarui");
@@ -1773,7 +1931,7 @@ function generateRenjaXlsHtml(){
   col("", "No");
   col("Tanggal","Hari"); col("Tanggal","Tgl"); col("Tanggal","Bln");
   col("", "Jam"); col("", "Tempat"); col("", "Jenis Kegiatan"); col("", "Target Kegiatan");
-  col("", "Sasaran"); col("", "Volume Kegiatan"); col("", "Target Peserta"); col("", "Durasi"); col("", "Nama Rangkaian");
+  col("", "Sasaran"); col("", "Jumlah Pelaksanaan"); col("", "Target Peserta"); col("", "Durasi"); col("", "Nama Rangkaian");
   kategoriList.forEach(function(cat){ col("Pelaksana & Operasional", cat.nama); });
   col("Pelaksana & Operasional", "TTL");
   col("Pelaksana & Operasional", "Biaya Personel");
@@ -1807,10 +1965,11 @@ function generateRenjaXlsHtml(){
   var bodyRows = "";
   monthKeg.forEach(function(k, idx){
     var d = new Date(k.tanggal+"T00:00:00");
+    var volumeLabel = k.volumeSesiTotal && k.volumeSesiTotal>1 ? ("Sesi "+k.volumeSesiIndex+" dari "+k.volumeSesiTotal) : "1 kali";
     var vals = [
       idx+1, DOW[d.getDay()], dateToHijri(d).day, HIJRI_MONTHS[dateToHijri(d).month-1],
       k.jam||"", k.tempat||"", k.jenisKegiatan||"", k.targetKegiatan||"",
-      k.sasaran||"", k.volumeKegiatan||"", k.targetPeserta||0, (k.durasi==="panjang"?">4 Jam":"≤4 Jam"), k.namaRangkaian||""
+      k.sasaran||"", volumeLabel, k.targetPeserta||0, (k.durasi==="panjang"?">4 Jam":"≤4 Jam"), k.namaRangkaian||""
     ];
     kategoriList.forEach(function(cat){
       var p = (k.pelaksanaBreakdown||[]).find(function(x){ return x.catId===cat.id; });
@@ -1899,27 +2058,81 @@ function composeNarrativeLaporan(){
       '<td style="width:32%;vertical-align:top;">Rincian Kegiatan</td>'+
       '<td style="width:63%;vertical-align:top;">Uraian Kegiatan</td>'+
       '</tr>';
-    monthKeg.forEach(function(k, idx){
-      var d = new Date(k.tanggal+"T00:00:00");
-      var rincian = '<p><b>'+escapeHtml(k.jenisKegiatan)+'</b></p>';
-      rincian += "<p><b>Tanggal</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+")</p>";
-      rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.tempat||"-")+"</p>";
-      rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.sasaran||"-")+"</p>";
-      rincian += "<p><b>Target Kegiatan</b>&nbsp;: "+escapeHtml(k.targetKegiatan||"-")+"</p>";
-      rincian += "<p><b>Anggaran Diajukan</b>&nbsp;: "+fmtRupiah(k.totalAnggaranAjuan)+"</p>";
 
-      var uraian = "";
-      if(k.evaluasi){
-        var ev = k.evaluasi;
-        var statusText = ev.statusPelaksanaan==="sesuai" ? "Terlaksana sesuai jadwal" : (ev.statusPelaksanaan==="berubah" ? "Terlaksana dengan perubahan jadwal" : "Tidak terlaksana");
-        uraian += "<p>"+statusText+", dihadiri oleh "+(ev.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+".</p>";
-        uraian += "<p><b>Capaian target kegiatan :</b></p><p>"+escapeHtml(ev.capaianTarget||"-")+".</p>";
-        if(ev.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b></p><p>"+escapeHtml(ev.indikatorKeberhasilan)+"</p>";
-        if(ev.kendala) uraian += "<p><b>Kendala yang dihadapi :</b></p><p>"+escapeHtml(ev.kendala)+"</p>";
-        if(ev.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev.uraianEvaluasi)+"</p>";
-        if(ev.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b></p><p>"+escapeHtml(ev.rencanaTindakLanjut)+"</p>";
+    // Kegiatan hasil fitur Jumlah Pelaksanaan (>1x, ditandai volumeGroupId sama) digabung jadi
+    // SATU entri di tabel, tanggal/anggaran/uraian evaluasi dirinci per sesi di dalamnya.
+    // Kegiatan biasa (termasuk Rangkaian manual yang bukan dari fitur ini) tetap entri terpisah.
+    var processedIds = {};
+    var entries = [];
+    monthKeg.forEach(function(k){
+      if(processedIds[k.id]) return;
+      if(k.volumeGroupId){
+        var group = monthKeg.filter(function(x){ return x.volumeGroupId===k.volumeGroupId; })
+          .sort(function(a,b){ return (a.volumeSesiIndex||0)-(b.volumeSesiIndex||0); });
+        group.forEach(function(g){ processedIds[g.id]=true; });
+        entries.push({type:"group", items:group});
       } else {
-        uraian += "<p><em>Kegiatan ini belum memiliki catatan evaluasi.</em></p>";
+        processedIds[k.id]=true;
+        entries.push({type:"single", k:k});
+      }
+    });
+
+    entries.forEach(function(entry, idx){
+      var rincian, uraian;
+      if(entry.type==="single"){
+        var k = entry.k;
+        var d = new Date(k.tanggal+"T00:00:00");
+        rincian = '<p><b>'+escapeHtml(k.jenisKegiatan)+'</b></p>';
+        rincian += "<p><b>Tanggal</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+")</p>";
+        rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.tempat||"-")+"</p>";
+        rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.sasaran||"-")+"</p>";
+        rincian += "<p><b>Target Kegiatan</b>&nbsp;: "+escapeHtml(k.targetKegiatan||"-")+"</p>";
+        rincian += "<p><b>Anggaran Diajukan</b>&nbsp;: "+fmtRupiah(k.totalAnggaranAjuan)+"</p>";
+
+        uraian = "";
+        if(k.evaluasi){
+          var ev = k.evaluasi;
+          var statusText = ev.statusPelaksanaan==="sesuai" ? "Terlaksana sesuai jadwal" : (ev.statusPelaksanaan==="berubah" ? "Terlaksana dengan perubahan jadwal" : "Tidak terlaksana");
+          uraian += "<p>"+statusText+", dihadiri oleh "+(ev.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+".</p>";
+          uraian += "<p><b>Capaian target kegiatan :</b></p><p>"+escapeHtml(ev.capaianTarget||"-")+".</p>";
+          if(ev.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b></p><p>"+escapeHtml(ev.indikatorKeberhasilan)+"</p>";
+          if(ev.kendala) uraian += "<p><b>Kendala yang dihadapi :</b></p><p>"+escapeHtml(ev.kendala)+"</p>";
+          if(ev.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev.uraianEvaluasi)+"</p>";
+          if(ev.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b></p><p>"+escapeHtml(ev.rencanaTindakLanjut)+"</p>";
+        } else {
+          uraian += "<p><em>Kegiatan ini belum memiliki catatan evaluasi.</em></p>";
+        }
+      } else {
+        var items = entry.items;
+        var first = items[0];
+        var totalAnggaranGroup = items.reduce(function(s,x){ return s+(x.totalAnggaranAjuan||0); }, 0);
+        rincian = '<p><b>'+escapeHtml(first.jenisKegiatan)+'</b> <em>(dilaksanakan '+items.length+' kali bulan ini)</em></p>';
+        rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.tempat||"-")+"</p>";
+        rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.sasaran||"-")+"</p>";
+        rincian += "<p><b>Target Kegiatan</b>&nbsp;: "+escapeHtml(first.targetKegiatan||"-")+"</p>";
+        rincian += "<p><b>Rincian Tanggal &amp; Anggaran per Sesi</b>&nbsp;:</p>";
+        items.forEach(function(k){
+          var d = new Date(k.tanggal+"T00:00:00");
+          rincian += "<p>&nbsp;&nbsp;Sesi "+k.volumeSesiIndex+" — "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+"): "+fmtRupiah(k.totalAnggaranAjuan)+"</p>";
+        });
+        rincian += "<p><b>Total Anggaran Diajukan</b>&nbsp;: "+fmtRupiah(totalAnggaranGroup)+"</p>";
+
+        uraian = "";
+        items.forEach(function(k){
+          var d = new Date(k.tanggal+"T00:00:00");
+          uraian += "<p><b>Sesi "+k.volumeSesiIndex+" ("+escapeHtml(hijriDateLabel(d))+")</b></p>";
+          if(k.evaluasi){
+            var ev2 = k.evaluasi;
+            var statusText2 = ev2.statusPelaksanaan==="sesuai" ? "Terlaksana sesuai jadwal" : (ev2.statusPelaksanaan==="berubah" ? "Terlaksana dengan perubahan jadwal" : "Tidak terlaksana");
+            uraian += "<p>"+statusText2+", dihadiri oleh "+(ev2.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+". Capaian target: "+escapeHtml(ev2.capaianTarget||"-")+".</p>";
+            if(ev2.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b> "+escapeHtml(ev2.indikatorKeberhasilan)+"</p>";
+            if(ev2.kendala) uraian += "<p><b>Kendala yang dihadapi :</b> "+escapeHtml(ev2.kendala)+"</p>";
+            if(ev2.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev2.uraianEvaluasi)+"</p>";
+            if(ev2.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b> "+escapeHtml(ev2.rencanaTindakLanjut)+"</p>";
+          } else {
+            uraian += "<p><em>Sesi ini belum memiliki catatan evaluasi.</em></p>";
+          }
+        });
       }
 
       html += '<tr>'+
