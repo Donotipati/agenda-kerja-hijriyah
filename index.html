@@ -128,6 +128,7 @@
   .sheet-backdrop{position:fixed;inset:0;background:rgba(19,29,41,0.6);display:none;z-index:40;align-items:flex-end;justify-content:center;}
   .sheet-backdrop.open{display:flex;}
   #pickerSheetBackdrop{z-index:55;}
+  #hijriDatePickerBackdrop{z-index:55;}
   #confirmBackdrop{z-index:60;}
   .sheet{background:var(--paper);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:16px 20px calc(26px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow-y:auto;animation:slideup .2s ease-out;}
   @keyframes slideup{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
@@ -255,6 +256,15 @@
     .bottom-nav{max-width:1080px;}
     .sheet{max-width:720px;}
   }
+  /* ---------- Beranda 2 kolom di layar lebar: kalender kiri, jadwal & perhatian kanan ---------- */
+  @media (min-width:1000px){
+    #tab-beranda.active{display:grid;grid-template-columns:minmax(280px,600px) 1fr;gap:6px 34px;align-items:start;}
+    #tab-beranda .cal-grid-wrap{grid-column:1;grid-row:1/5;margin:0;max-width:none;}
+    #tab-beranda #jadwalSectionTitle{grid-column:2;grid-row:1;margin-top:0;}
+    #tab-beranda #jadwalHariIniArea{grid-column:2;grid-row:2;}
+    #tab-beranda #perluPerhatianSectionTitle{grid-column:2;grid-row:3;}
+    #tab-beranda #perluPerhatianArea{grid-column:2;grid-row:4;}
+  }
 </style>
     <script src="native-notifications.js"></script>
     <script src="native-files.js"></script>
@@ -304,7 +314,7 @@
       <div class="section-title first" id="jadwalSectionTitle">Jadwal Hari Ini</div>
       <div id="jadwalHariIniArea"></div>
 
-      <div class="section-title">Perlu Perhatian</div>
+      <div class="section-title" id="perluPerhatianSectionTitle">Perlu Perhatian</div>
       <div id="perluPerhatianArea"></div>
     </div>
 
@@ -503,7 +513,7 @@
     <h2 id="renjaFormTitle">Kegiatan Baru</h2>
 
     <div class="section-title first">Waktu &amp; Tempat</div>
-    <div class="field"><label>Tanggal</label><input type="text" id="rTanggal" readonly placeholder="Pilih tanggal Hijriyah" onclick="openHijriDatePicker('rTanggal')"></div>
+    <div class="field"><label>Tanggal</label><input type="text" id="rTanggal" readonly placeholder="Pilih tanggal Hijriyah"></div>
     <div class="field"><label>Jam</label><input type="time" id="rJam"></div>
     <div class="field"><label>Tempat</label><input type="text" id="rTempat" placeholder="Lokasi kegiatan"></div>
 
@@ -572,7 +582,7 @@
       </div>
     </div>
     <div id="jadwalAktualArea" style="display:none;">
-      <div class="field"><label>Tanggal Aktual</label><input type="text" id="eTanggalAktual" readonly placeholder="Pilih tanggal Hijriyah" onclick="openHijriDatePicker('eTanggalAktual')"></div>
+      <div class="field"><label>Tanggal Aktual</label><input type="text" id="eTanggalAktual" readonly placeholder="Pilih tanggal Hijriyah"></div>
       <div class="field"><label>Jam Aktual</label><input type="time" id="eJamAktual"></div>
     </div>
 
@@ -622,7 +632,7 @@
     <h2 id="insidentilFormTitle">Kegiatan Insidentil</h2>
     <p class="sub">Kegiatan yang dilaksanakan di luar Rencana Kerja (RENJA), dicatat setelah berlangsung.</p>
 
-    <div class="field"><label>Tanggal</label><input type="text" id="iTanggal" readonly placeholder="Pilih tanggal Hijriyah" onclick="openHijriDatePicker('iTanggal')"></div>
+    <div class="field"><label>Tanggal</label><input type="text" id="iTanggal" readonly placeholder="Pilih tanggal Hijriyah"></div>
     <div class="field"><label>Jam</label><input type="time" id="iJam"></div>
     <div class="field"><label>Tempat</label><input type="text" id="iTempat" placeholder="Lokasi kegiatan"></div>
     <div class="field"><label>Jenis Kegiatan</label><input type="text" id="iJenis" placeholder="mis. Kunjungan Kerja"></div>
@@ -841,6 +851,7 @@ function populateHijriPicker(initialISO){
   hijriPickerYear.onchange=refill;hijriPickerMonth.onchange=refill;hijriPickerDay.onchange=refreshHijriPickerInfo;refill();
 }
 function openHijriDatePicker(fieldId){activeHijriDateField=fieldId;populateHijriPicker(getHijriFieldISO(fieldId)||todayISO());hijriDatePickerBackdrop.classList.add("open");}
+["rTanggal","eTanggalAktual","iTanggal"].forEach(function(fid){var el=document.getElementById(fid);if(el)el.addEventListener("click",function(){openHijriDatePicker(fid);});});
 btnHijriDateCancel.addEventListener("click",function(){hijriDatePickerBackdrop.classList.remove("open");});
 hijriDatePickerBackdrop.addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
 btnHijriDateSave.addEventListener("click",function(){
@@ -1518,17 +1529,28 @@ function updatePesertaSelisih(){
   box.style.display = "block";
   box.innerHTML = '<div class="line"><span>Rencana: '+rencana+' orang</span><b style="color:'+(selisih>=0?"var(--success)":"var(--danger)")+';">'+(selisih>=0?"+":"")+selisih+'</b></div>';
 }
-ePesertaInput.addEventListener("input", updatePesertaSelisih);
+ePesertaInput.addEventListener("input", function(){ updatePesertaSelisih(); updateAnggaranSelisih(); });
 function updateAnggaranSelisih(){
   var ajuan = currentEvaluasiKegiatan ? (currentEvaluasiKegiatan.totalAnggaranAjuan||0) : 0;
   var tambahan = getRawNumber(eDanaTambahanInput);
   var realisasi = getRawNumber(eRealisasiInput);
   var r = hitungDeviasi(ajuan, realisasi);
+  // Realisasi di bawah ajuan gak selalu berarti kegiatan bermasalah — kalau peserta yang hadir
+  // memang lebih sedikit dari rencana, itu wajar konsumsinya juga lebih hemat. Bedakan labelnya.
+  var targetPeserta = currentEvaluasiKegiatan ? (currentEvaluasiKegiatan.targetPeserta||0) : 0;
+  var pesertaHadir = parseInt(ePesertaInput.value,10)||0;
+  var pesertaKurang = targetPeserta>0 && pesertaHadir < targetPeserta;
+  var isPenghematan = r.selisih < 0 && pesertaKurang;
+  var label = r.selisih===0 ? "Sesuai Ajuan" : (isPenghematan ? "Penghematan" : "Deviasi");
+  var color = (r.selisih===0 || isPenghematan) ? "var(--success)" : "var(--danger)";
   var box = document.getElementById("eAnggaranSelisihBox");
   var html = '<div class="line"><span>Anggaran Diajukan</span><b>'+fmtRupiah(ajuan)+'</b></div>';
   html += '<div class="line"><span>Realisasi Anggaran</span><b>'+fmtRupiah(realisasi)+'</b></div>';
   html += '<div class="line"><span>Persentase Realisasi</span><b>'+r.persen.toFixed(1)+'%</b></div>';
-  html += '<div class="line total" style="color:'+(r.selisih===0?"var(--success)":"var(--danger)")+';"><span>'+(r.selisih===0?"Sesuai Ajuan":"Deviasi")+'</span><span>'+(r.selisih>0?"+":r.selisih<0?"-":"")+fmtRupiah(Math.abs(r.selisih))+'</span></div>';
+  html += '<div class="line total" style="color:'+color+';"><span>'+label+'</span><span>'+(r.selisih>0?"+":r.selisih<0?"-":"")+fmtRupiah(Math.abs(r.selisih))+'</span></div>';
+  if(isPenghematan){
+    html += '<div class="line" style="margin-top:2px;"><span style="font-size:11px;color:var(--ink-soft);">Peserta hadir ('+pesertaHadir+') lebih sedikit dari rencana ('+targetPeserta+') — kemungkinan ini penyebab realisasi lebih rendah, bukan berarti kegiatan tak tuntas.</span></div>';
+  }
   if(tambahan>0){
     html += '<div class="line" style="margin-top:6px;border-top:1px dashed var(--paper-line);padding-top:6px;"><span>Dana Tambahan <em>(anggaran terpisah, di luar ajuan &amp; tidak memengaruhi persentase/deviasi di atas)</em></span><b>'+fmtRupiah(tambahan)+'</b></div>';
   }
@@ -1923,14 +1945,20 @@ document.getElementById("btnCetakLaporan").addEventListener("click", function(){
 });
 
 // ================= Backup / Restore =================
-document.getElementById("btnExport").addEventListener("click", function(){
+document.getElementById("btnExport").addEventListener("click", async function(){
+  var ok = await showConfirm("Unduh file backup semua data sekarang?", "Unduh");
+  if(!ok) return;
   var blob = new Blob([JSON.stringify({kegiatan:state.kegiatan, insidentil:state.insidentil, settings:state.settings}, null, 2)], {type:"application/json"});
   var filename = "backup-agendakerja-"+todayISO()+".json";
   (window.AgendaFiles ? window.AgendaFiles.saveOrShareBlob(filename, blob) : Promise.resolve()).then(function(res){
     toast(res && res.mode==="saved" ? (res.easy ? "Backup tersimpan di folder Download/AgendaKerja" : "Backup tersimpan di folder AgendaKerja") : "Backup siap disimpan/dibagikan");
   });
 });
-document.getElementById("btnImport").addEventListener("click", function(){ document.getElementById("fileImport").click(); });
+document.getElementById("btnImport").addEventListener("click", async function(){
+  var ok = await showConfirm("Impor file backup? Pastikan file yang dipilih benar.", "Lanjut");
+  if(!ok) return;
+  document.getElementById("fileImport").click();
+});
 document.getElementById("fileImport").addEventListener("change", function(e){
   var file = e.target.files[0]; if(!file) return;
   var reader = new FileReader();
