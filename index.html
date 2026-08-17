@@ -456,6 +456,26 @@
   </div>
 </div>
 
+<!-- ============ SHEET: Pengingat Setup Awal ============ -->
+<div class="sheet-backdrop" id="setupReminderBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Sebelum Mulai Nambah Kegiatan</h2>
+    <p class="sub">Biar hasil catatannya rapi &amp; anggarannya kehitung otomatis, cek dulu isian di tab Atur:</p>
+    <ul style="font-size:13.5px;line-height:1.9;padding-left:20px;margin:0 0 16px;">
+      <li>Nama Instansi</li>
+      <li>Koreksi Tanggal Hijriyah (kalau perlu)</li>
+      <li>Tarif Operasional (Pelaksana)</li>
+      <li>Tarif Mamin</li>
+      <li>Kunci Aplikasi / PIN (opsional, buat keamanan)</li>
+    </ul>
+    <div class="btn-row" style="flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" id="btnSetupReminderKePengaturan" style="width:100%;">Ke Pengaturan Dulu</button>
+      <button class="btn btn-ghost" id="btnSetupReminderLanjut" style="width:100%;">Lanjut Tanpa Setting</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ SHEET: Realisasi Global ============ -->
 <div class="sheet-backdrop" id="realisasiGlobalBackdrop">
   <div class="sheet">
@@ -704,7 +724,8 @@ var DEFAULT_SETTINGS = {
   namaInstansi: "",
   hijriOffset: 0,
   pinEnabled: false,
-  pinHash: ""
+  pinHash: "",
+  sudahLihatPengingatAwal: false
 };
 
 var state = {
@@ -1436,11 +1457,38 @@ document.getElementById("btnFab").addEventListener("click", function(){ document
 document.getElementById("fabSheetBackdrop").addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
 document.getElementById("actTambahRenja").addEventListener("click", function(){
   document.getElementById("fabSheetBackdrop").classList.remove("open");
+  if(!state.settings.sudahLihatPengingatAwal){ showSetupReminder(function(){ openRenjaForm(null); }); return; }
   openRenjaForm(null);
 });
 document.getElementById("actTambahInsidentil").addEventListener("click", function(){
   document.getElementById("fabSheetBackdrop").classList.remove("open");
+  if(!state.settings.sudahLihatPengingatAwal){ showSetupReminder(function(){ openInsidentilForm(null); }); return; }
   openInsidentilForm(null);
+});
+
+// ================= SHEET: Pengingat Setup Awal =================
+// Muncul sekali doang sebelum kegiatan pertama ditambahkan, ingetin isi Pengaturan dulu
+// (Nama Instansi, Koreksi Hijriyah, Tarif Operasional/Mamin, PIN) biar gak kelewat.
+var setupReminderBackdrop = document.getElementById("setupReminderBackdrop");
+var setupReminderContinueCallback = null;
+function showSetupReminder(onContinue){
+  setupReminderContinueCallback = onContinue;
+  setupReminderBackdrop.classList.add("open");
+}
+function dismissSetupReminder(){
+  state.settings.sudahLihatPengingatAwal = true;
+  save();
+  setupReminderBackdrop.classList.remove("open");
+}
+document.getElementById("btnSetupReminderLanjut").addEventListener("click", function(){
+  dismissSetupReminder();
+  var cb = setupReminderContinueCallback; setupReminderContinueCallback = null;
+  if(cb) cb();
+});
+document.getElementById("btnSetupReminderKePengaturan").addEventListener("click", function(){
+  dismissSetupReminder();
+  setupReminderContinueCallback = null;
+  showTab("atur");
 });
 
 // ================= SHEET: RENJA FORM =================
