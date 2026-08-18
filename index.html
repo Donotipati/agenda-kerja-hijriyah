@@ -1123,7 +1123,7 @@ function renderBeranda(){
 
   var perluEl = document.getElementById("perluPerhatianArea");
   var todayStr = todayISO();
-  var perlu = state.kegiatan.filter(function(k){ return !k.evaluasi && k.tanggal < todayStr; })
+  var perlu = state.kegiatan.filter(function(k){ return !k.evaluasi && k.tanggal < todayStr && inViewMonth(k.tanggal, state.viewDate); })
     .sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal); });
   if(perlu.length===0){
     perluEl.innerHTML = '<p class="empty-note">Tidak ada kegiatan yang terlewat tanpa evaluasi.</p>';
