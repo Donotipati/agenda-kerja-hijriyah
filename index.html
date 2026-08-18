@@ -558,6 +558,15 @@
     <div class="sheet-handle"></div>
     <h2 id="renjaFormTitle">Kegiatan Baru</h2>
 
+    <div class="field">
+      <label>Posisi</label>
+      <div class="toggle3" id="toggleRenjaPosisi">
+        <button type="button" data-val="pelaksana" class="active">Pelaksana</button>
+        <button type="button" data-val="peserta">Peserta</button>
+      </div>
+      <p class="field-hint-after" id="posisiHint">Kegiatan yang instansi kita selenggarakan sendiri.</p>
+    </div>
+
     <div class="section-title first">Waktu &amp; Tempat</div>
     <div class="field"><label>Tanggal</label><input type="text" id="rTanggal" readonly placeholder="Pilih tanggal Hijriyah"></div>
     <div class="field"><label>Jam</label><input type="time" id="rJam"></div>
@@ -565,15 +574,15 @@
 
     <div class="section-title">Kegiatan</div>
     <div class="field"><label>Jenis Kegiatan</label><input type="text" id="rJenis" placeholder="mis. Rapat Koordinasi"></div>
-    <div class="field"><label>Target Kegiatan</label><input type="text" id="rTarget" placeholder="Tujuan/output yang ingin dicapai"></div>
-    <div class="field"><label>Sasaran</label><input type="text" id="rSasaran" placeholder="Siapa/apa yang jadi objek kegiatan"></div>
+    <div class="field"><label id="rTargetLabel">Target Kegiatan</label><input type="text" id="rTarget" placeholder="Tujuan/output yang ingin dicapai"></div>
+    <div class="field" id="rSasaranWrap"><label>Sasaran</label><input type="text" id="rSasaran" placeholder="Siapa/apa yang jadi objek kegiatan"></div>
     <div class="field" id="rJumlahPelaksanaanWrap">
       <label>Jumlah Pelaksanaan Bulan Ini</label>
       <input type="number" id="rJumlahPelaksanaan" min="1" step="1" placeholder="1">
       <p class="field-hint-after">Isi lebih dari 1 kalau kegiatan yang sama akan dilaksanakan beberapa kali bulan ini (mis. rapat 2x). Sistem akan minta pilih tanggal tiap pelaksanaannya dan otomatis mengelompokkannya sebagai satu Rangkaian.</p>
     </div>
-    <div class="field"><label>Target Peserta</label><input type="text" inputmode="numeric" id="rTargetPeserta" placeholder="Jumlah peserta/audiens yang diharapkan hadir"></div>
-    <div class="field">
+    <div class="field" id="rTargetPesertaWrap"><label>Target Peserta</label><input type="text" inputmode="numeric" id="rTargetPeserta" placeholder="Jumlah peserta/audiens yang diharapkan hadir"></div>
+    <div class="field" id="rDurasiWrap">
       <label>Durasi Kegiatan</label>
       <div class="toggle3" style="margin-bottom:0;" id="toggleDurasi">
         <button type="button" data-val="pendek" class="active">≤ 4 Jam</button>
@@ -586,7 +595,7 @@
       <p class="field-hint-after">Kegiatan dengan Nama Rangkaian yang sama akan direkap bareng di Laporan</p>
     </div>
 
-    <div class="section-title">Pelaksana</div>
+    <div class="section-title" id="pelaksanaSectionTitle">Pelaksana</div>
     <div id="rPelaksanaArea"></div>
 
     <div class="section-title">Kendaraan</div>
@@ -636,20 +645,24 @@
       <div class="field"><label>Jam Aktual</label><input type="time" id="eJamAktual"></div>
     </div>
 
-    <div class="field"><label>Jumlah Peserta Hadir</label><input type="text" inputmode="numeric" id="ePesertaHadir" placeholder="0"></div>
-    <div class="calc-box" id="ePesertaSelisihBox" style="display:none;"></div>
+    <div id="ePesertaHadirWrap">
+      <div class="field"><label>Jumlah Peserta Hadir</label><input type="text" inputmode="numeric" id="ePesertaHadir" placeholder="0"></div>
+      <div class="calc-box" id="ePesertaSelisihBox" style="display:none;"></div>
+    </div>
 
-    <div class="field"><label>Capaian Target</label>
-      <div class="toggle3" id="toggleCapaianTarget">
-        <button type="button" data-val="tercapai" class="tercapai">Tercapai</button>
-        <button type="button" data-val="sebagian" class="sebagian">Sebagian</button>
-        <button type="button" data-val="tidak" class="tidak">Tidak Tercapai</button>
+    <div id="eCapaianWrap">
+      <div class="field"><label>Capaian Target</label>
+        <div class="toggle3" id="toggleCapaianTarget">
+          <button type="button" data-val="tercapai" class="tercapai">Tercapai</button>
+          <button type="button" data-val="sebagian" class="sebagian">Sebagian</button>
+          <button type="button" data-val="tidak" class="tidak">Tidak Tercapai</button>
+        </div>
       </div>
     </div>
 
-    <div class="field"><label>Indikator Keberhasilan</label><textarea id="eIndikator" placeholder="Ukuran/tanda keberhasilan kegiatan ini..."></textarea></div>
-    <div class="field"><label>Kendala/Hambatan</label><textarea id="eKendala" placeholder="Kendala yang dihadapi saat pelaksanaan..."></textarea></div>
-    <div class="field"><label>Uraian Evaluasi</label><textarea id="eUraian" placeholder="Catatan umum jalannya kegiatan..."></textarea></div>
+    <div id="eIndikatorWrap"><div class="field"><label>Indikator Keberhasilan</label><textarea id="eIndikator" placeholder="Ukuran/tanda keberhasilan kegiatan ini..."></textarea></div></div>
+    <div id="eKendalaWrap"><div class="field"><label>Kendala/Hambatan</label><textarea id="eKendala" placeholder="Kendala yang dihadapi saat pelaksanaan..."></textarea></div></div>
+    <div class="field"><label id="eUraianLabel">Uraian Evaluasi</label><textarea id="eUraian" placeholder="Catatan umum jalannya kegiatan..."></textarea></div>
 
     <div class="section-title">Realisasi Anggaran</div>
     <div class="field">
@@ -664,8 +677,10 @@
     </div>
     <div class="calc-box" id="eAnggaranSelisihBox"></div>
 
-    <div class="section-title">Tindak Lanjut</div>
-    <div class="field"><label>Rencana Tindak Lanjut</label><textarea id="eRtl" placeholder="Langkah selanjutnya berdasarkan hasil evaluasi ini..."></textarea></div>
+    <div id="eRtlWrap">
+      <div class="section-title">Tindak Lanjut</div>
+      <div class="field"><label>Rencana Tindak Lanjut</label><textarea id="eRtl" placeholder="Langkah selanjutnya berdasarkan hasil evaluasi ini..."></textarea></div>
+    </div>
     <button class="btn btn-teal" id="btnJadikanKegiatanRenja" style="width:100%;margin-bottom:6px;">Jadikan Kegiatan Baru</button>
 
     <div class="btn-row" style="margin-top:10px;">
@@ -682,12 +697,20 @@
     <h2 id="insidentilFormTitle">Kegiatan Insidentil</h2>
     <p class="sub">Kegiatan yang dilaksanakan di luar Rencana Kerja (RENJA), dicatat setelah berlangsung.</p>
 
+    <div class="field">
+      <label>Posisi</label>
+      <div class="toggle3" id="toggleInsidentilPosisi">
+        <button type="button" data-val="pelaksana" class="active">Pelaksana</button>
+        <button type="button" data-val="peserta">Peserta</button>
+      </div>
+    </div>
+
     <div class="field"><label>Tanggal</label><input type="text" id="iTanggal" readonly placeholder="Pilih tanggal Hijriyah"></div>
     <div class="field"><label>Jam</label><input type="time" id="iJam"></div>
     <div class="field"><label>Tempat</label><input type="text" id="iTempat" placeholder="Lokasi kegiatan"></div>
     <div class="field"><label>Jenis Kegiatan</label><input type="text" id="iJenis" placeholder="mis. Kunjungan Kerja"></div>
     <div class="field"><label>Uraian Kejadian</label><textarea id="iUraian" placeholder="Uraian singkat kegiatan yang dilaksanakan..."></textarea></div>
-    <div class="field"><label>Sasaran</label><input type="text" id="iSasaran" placeholder="Pihak yang terlibat"></div>
+    <div class="field" id="iSasaranWrap"><label>Sasaran</label><input type="text" id="iSasaran" placeholder="Pihak yang terlibat"></div>
     <div class="field"><label>Total Orang Terlibat</label><input type="text" inputmode="numeric" id="iTotalOrang" placeholder="0"></div>
     <div class="field amount-prefix"><label>Total Biaya</label><span>Rp</span><input type="text" inputmode="numeric" id="iTotalBiaya" placeholder="0"></div>
     <div class="field"><label>Hasil / Rencana Tindak Lanjut</label><textarea id="iRtl" placeholder="Hasil kegiatan dan langkah selanjutnya (opsional)..."></textarea></div>
@@ -740,6 +763,7 @@ var state = {
   editingInsidentilId: null,
   currentIsReguler: false,
   currentDurasi: "pendek",
+  currentPosisi: "pelaksana",
   currentStatusPelaksanaan: "sesuai",
   currentCapaianTarget: "tercapai",
   pendingJadikanKegiatanSource: null,
@@ -1004,12 +1028,14 @@ btnHijriDateCancel.addEventListener("click",function(){
 hijriDatePickerBackdrop.addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
 
 // ---------- computation helpers ----------
-function computeKegiatanTotals(pelaksanaBreakdown, mobilBensin, mobilEtoll, tarifMamin, targetPeserta){
+function computeKegiatanTotals(pelaksanaBreakdown, mobilBensin, mobilEtoll, tarifMamin, targetPeserta, includeMamin){
+  if(includeMamin===undefined) includeMamin = true;
   var ttl = 0, biayaPersonel = 0;
   (pelaksanaBreakdown||[]).forEach(function(p){ ttl += (p.jumlah||0); biayaPersonel += (p.jumlah||0)*(p.tarif||0); });
   // Mamin (konsumsi) mencakup semua yang hadir — Pelaksana + Target Peserta — walau Peserta gak punya biaya personel sendiri
+  // (kosong total kalau posisi kita "Peserta" — cuma ikut, gak nanggung konsumsi acara)
   var totalOrangMamin = ttl + (targetPeserta||0);
-  var mamin = totalOrangMamin * (tarifMamin||0);
+  var mamin = includeMamin ? totalOrangMamin * (tarifMamin||0) : 0;
   var total = biayaPersonel + mamin + (mobilBensin||0) + (mobilEtoll||0);
   return { ttl:ttl, totalOrangMamin:totalOrangMamin, biayaPersonel:biayaPersonel, mamin:mamin, total:total };
 }
@@ -1137,12 +1163,13 @@ function buildKegRow(k){
   var status = kegiatanStatusBadge(k);
   var sumber = sumberBadge(k);
   var rangkaianTag = k.namaRangkaian ? '<span class="tag" style="background:#EDE3F2;color:#7A4B94;">🔗 '+escapeHtml(k.namaRangkaian)+'</span>' : '';
+  var posisiTag = k.posisi==="peserta" ? '<span class="tag" style="background:#F5E6D8;color:#C97B3D;">Peserta</span>' : '';
   var row = document.createElement("div");
   row.className = "keg-row";
   row.innerHTML =
     '<div class="keg-date"><span class="dow">'+DOW[d.getDay()]+'</span><span class="dnum">'+dateToHijri(d).day+'</span></div>'+
     '<div class="keg-mid"><p class="keg-title">'+escapeHtml(k.jenisKegiatan||"(Tanpa nama)")+'</p><p class="keg-sub">'+escapeHtml(k.tempat||"-")+'</p>'+
-    '<div class="keg-tags"><span class="tag '+status.cls+'">'+status.label+'</span><span class="tag '+sumber.cls+'">'+sumber.label+'</span>'+rangkaianTag+'</div></div>'+
+    '<div class="keg-tags">'+posisiTag+'<span class="tag '+status.cls+'">'+status.label+'</span><span class="tag '+sumber.cls+'">'+sumber.label+'</span>'+rangkaianTag+'</div></div>'+
     '<div class="keg-right"><div class="keg-amount">'+fmtRupiah(k.totalAnggaranAjuan)+'</div></div>';
   row.addEventListener("click", function(){ openRenjaForm(k); });
   return row;
@@ -1526,22 +1553,50 @@ function updateRenjaCalc(){
   var breakdown = getPelaksanaBreakdown();
   var bensin = getRawNumber(rBensinInput);
   var etoll = getRawNumber(rEtollInput);
-  var targetPeserta = parseInt(document.getElementById("rTargetPeserta").value,10)||0;
+  var targetPeserta = state.currentPosisi==="peserta" ? 0 : (parseInt(document.getElementById("rTargetPeserta").value,10)||0);
   var tarifMaminAktif = state.currentDurasi==="panjang" ? state.settings.tarifMaminPanjang : state.settings.tarifMaminPendek;
-  var calc = computeKegiatanTotals(breakdown, bensin, etoll, tarifMaminAktif, targetPeserta);
-  document.getElementById("rCalcBox").innerHTML =
-    '<div class="line"><span>TTL Pelaksana (orang)</span><b>'+calc.ttl+'</b></div>'+
-    '<div class="line"><span>Biaya Personel</span><b>'+fmtRupiah(calc.biayaPersonel)+'</b></div>'+
-    '<div class="line"><span>Total Orang untuk Mamin ('+calc.ttl+' Pelaksana + '+targetPeserta+' Peserta)</span><b>'+calc.totalOrangMamin+'</b></div>'+
-    '<div class="line"><span>Mamin ('+calc.totalOrangMamin+' × '+fmtRupiah(tarifMaminAktif)+', '+(state.currentDurasi==="panjang"?"&gt;4 jam":"≤4 jam")+')</span><b>'+fmtRupiah(calc.mamin)+'</b></div>'+
-    '<div class="line"><span>Bensin + E-Toll</span><b>'+fmtRupiah(bensin+etoll)+'</b></div>'+
+  var includeMamin = state.currentPosisi!=="peserta";
+  var calc = computeKegiatanTotals(breakdown, bensin, etoll, tarifMaminAktif, targetPeserta, includeMamin);
+  var html = '<div class="line"><span>TTL '+(state.currentPosisi==="peserta"?"Yang Berangkat":"Pelaksana")+' (orang)</span><b>'+calc.ttl+'</b></div>'+
+    '<div class="line"><span>Biaya Personel</span><b>'+fmtRupiah(calc.biayaPersonel)+'</b></div>';
+  if(includeMamin){
+    html += '<div class="line"><span>Total Orang untuk Mamin ('+calc.ttl+' Pelaksana + '+targetPeserta+' Peserta)</span><b>'+calc.totalOrangMamin+'</b></div>'+
+      '<div class="line"><span>Mamin ('+calc.totalOrangMamin+' × '+fmtRupiah(tarifMaminAktif)+', '+(state.currentDurasi==="panjang"?"&gt;4 jam":"≤4 jam")+')</span><b>'+fmtRupiah(calc.mamin)+'</b></div>';
+  }
+  html += '<div class="line"><span>Bensin + E-Toll</span><b>'+fmtRupiah(bensin+etoll)+'</b></div>'+
     '<div class="line total"><span>Total Anggaran (Ajuan)</span><span>'+fmtRupiah(calc.total)+'</span></div>'+
     '<div style="font-size:10.5px;color:var(--ink-soft);margin-top:5px;font-weight:400;">Realisasi &amp; persentasenya diisi nanti saat Evaluasi</div>';
+  document.getElementById("rCalcBox").innerHTML = html;
   return calc;
 }
 rBensinInput.addEventListener("input", updateRenjaCalc);
 rEtollInput.addEventListener("input", updateRenjaCalc);
 document.getElementById("rTargetPeserta").addEventListener("input", updateRenjaCalc);
+
+// Toggle "Posisi" — Pelaksana (nyelenggarain sendiri, form lengkap) vs Peserta (cuma ikut
+// kegiatan pihak lain, form disederhanain: gak ada Sasaran/Target Peserta/Mamin/Durasi,
+// Target Kegiatan berubah jadi Catatan Kegiatan).
+function updateRenjaPosisiUI(){
+  var isPeserta = state.currentPosisi==="peserta";
+  document.getElementById("rSasaranWrap").style.display = isPeserta ? "none" : "block";
+  document.getElementById("rTargetPesertaWrap").style.display = isPeserta ? "none" : "block";
+  document.getElementById("rDurasiWrap").style.display = isPeserta ? "none" : "block";
+  document.getElementById("pelaksanaSectionTitle").textContent = isPeserta ? "Operasional (Yang Berangkat)" : "Pelaksana";
+  document.getElementById("rTargetLabel").textContent = isPeserta ? "Catatan Kegiatan" : "Target Kegiatan";
+  document.getElementById("rTarget").placeholder = isPeserta ? "Catatan tentang kegiatan yang diikuti (opsional)" : "Tujuan/output yang ingin dicapai";
+  document.getElementById("posisiHint").textContent = isPeserta
+    ? "Kegiatan yang diselenggarakan pihak lain, instansi kita cuma ikut/hadir."
+    : "Kegiatan yang instansi kita selenggarakan sendiri.";
+  updateRenjaCalc();
+}
+document.getElementById("toggleRenjaPosisi").querySelectorAll("button").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll("#toggleRenjaPosisi button").forEach(function(x){x.classList.remove("active");});
+    b.classList.add("active");
+    state.currentPosisi = b.dataset.val;
+    updateRenjaPosisiUI();
+  });
+});
 
 document.getElementById("toggleDurasi").querySelectorAll("button").forEach(function(b){
   b.addEventListener("click", function(){
@@ -1587,6 +1642,10 @@ function openRenjaForm(k, prefill){
   state.currentDurasi = k ? (k.durasi||"pendek") : "pendek";
   document.querySelectorAll("#toggleDurasi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===state.currentDurasi); });
 
+  state.currentPosisi = k ? (k.posisi||"pelaksana") : "pelaksana";
+  document.querySelectorAll("#toggleRenjaPosisi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===state.currentPosisi); });
+  updateRenjaPosisiUI();
+
   renderPelaksanaArea(k ? k.pelaksanaBreakdown : null);
   updateRenjaCalc();
 
@@ -1615,20 +1674,22 @@ renjaFormBackdrop.addEventListener("click", function(e){ if(e.target===this) thi
 
 function buildRenjaRecordFromForm(tanggal){
   var jenis = document.getElementById("rJenis").value.trim();
+  var isPeserta = state.currentPosisi==="peserta";
   var breakdown = getPelaksanaBreakdown();
   var bensin = getRawNumber(rBensinInput);
   var etoll = getRawNumber(rEtollInput);
-  var targetPesertaVal = parseInt(document.getElementById("rTargetPeserta").value,10)||0;
+  var targetPesertaVal = isPeserta ? 0 : (parseInt(document.getElementById("rTargetPeserta").value,10)||0);
   var tarifMaminAktif = state.currentDurasi==="panjang" ? state.settings.tarifMaminPanjang : state.settings.tarifMaminPendek;
-  var calc = computeKegiatanTotals(breakdown, bensin, etoll, tarifMaminAktif, targetPesertaVal);
+  var calc = computeKegiatanTotals(breakdown, bensin, etoll, tarifMaminAktif, targetPesertaVal, !isPeserta);
   return {
     tanggal: tanggal,
     jam: document.getElementById("rJam").value,
     tempat: document.getElementById("rTempat").value.trim(),
     jenisKegiatan: jenis,
+    posisi: state.currentPosisi,
     targetKegiatan: document.getElementById("rTarget").value.trim(),
-    sasaran: document.getElementById("rSasaran").value.trim(),
-    targetPeserta: parseInt(document.getElementById("rTargetPeserta").value,10)||0,
+    sasaran: isPeserta ? "" : document.getElementById("rSasaran").value.trim(),
+    targetPeserta: targetPesertaVal,
     namaRangkaian: document.getElementById("rRangkaian").value.trim(),
     durasi: state.currentDurasi,
     pelaksanaBreakdown: breakdown,
@@ -1843,6 +1904,19 @@ function openEvaluasiForm(k){
   updateAnggaranSelisih();
   document.getElementById("eRtl").value = ev.rencanaTindakLanjut || "";
 
+  // Kegiatan posisi "Peserta" — evaluasinya disederhanain: cuma status pelaksanaan + Catatan
+  // Kegiatan (pakai field Uraian Evaluasi yang sama) + Realisasi Anggaran. Gak ada target peserta
+  // buat dibandingin, capaian/indikator/kendala/RTL terstruktur juga gak relevan (cuma ikut, bukan
+  // yang nyelenggarain).
+  var isPesertaEval = k.posisi==="peserta";
+  document.getElementById("ePesertaHadirWrap").style.display = isPesertaEval ? "none" : "block";
+  document.getElementById("eCapaianWrap").style.display = isPesertaEval ? "none" : "block";
+  document.getElementById("eIndikatorWrap").style.display = isPesertaEval ? "none" : "block";
+  document.getElementById("eKendalaWrap").style.display = isPesertaEval ? "none" : "block";
+  document.getElementById("eRtlWrap").style.display = isPesertaEval ? "none" : "block";
+  document.getElementById("eUraianLabel").textContent = isPesertaEval ? "Catatan Kegiatan" : "Uraian Evaluasi";
+  document.getElementById("eUraian").placeholder = isPesertaEval ? "Catatan hasil mengikuti kegiatan ini..." : "Catatan umum jalannya kegiatan...";
+
   evaluasiFormBackdrop.classList.add("open");
 }
 document.getElementById("btnEvaluasiCancel").addEventListener("click", function(){ evaluasiFormBackdrop.classList.remove("open"); });
@@ -1884,6 +1958,18 @@ var insidentilFormBackdrop = document.getElementById("insidentilFormBackdrop");
 var iTotalBiayaInput = document.getElementById("iTotalBiaya");
 formatNumberInput(iTotalBiayaInput);
 
+function updateInsidentilPosisiUI(){
+  var isPeserta = state.currentPosisiInsidentil==="peserta";
+  document.getElementById("iSasaranWrap").style.display = isPeserta ? "none" : "block";
+}
+document.getElementById("toggleInsidentilPosisi").querySelectorAll("button").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll("#toggleInsidentilPosisi button").forEach(function(x){x.classList.remove("active");});
+    b.classList.add("active");
+    state.currentPosisiInsidentil = b.dataset.val;
+    updateInsidentilPosisiUI();
+  });
+});
 function openInsidentilForm(it){
   state.editingInsidentilId = it ? it.id : null;
   document.getElementById("insidentilFormTitle").textContent = it ? "Edit Kegiatan Insidentil" : "Kegiatan Insidentil";
@@ -1897,6 +1983,9 @@ function openInsidentilForm(it){
   document.getElementById("iTotalOrang").value = it ? (it.totalOrang||"") : "";
   setNumberInputValue(iTotalBiayaInput, it ? (it.totalBiaya||0) : 0);
   document.getElementById("iRtl").value = it ? (it.rencanaTindakLanjut||"") : "";
+  state.currentPosisiInsidentil = it ? (it.posisi||"pelaksana") : "pelaksana";
+  document.querySelectorAll("#toggleInsidentilPosisi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===state.currentPosisiInsidentil); });
+  updateInsidentilPosisiUI();
   insidentilFormBackdrop.classList.add("open");
 }
 document.getElementById("btnInsidentilCancel").addEventListener("click", function(){ insidentilFormBackdrop.classList.remove("open"); });
@@ -1907,11 +1996,13 @@ document.getElementById("btnInsidentilSave").addEventListener("click", function(
   var jenis = document.getElementById("iJenis").value.trim();
   if(!tanggal){ toast("Pilih tanggal dulu"); return; }
   if(!jenis){ toast("Isi jenis kegiatan dulu"); return; }
+  var isPesertaIns = state.currentPosisiInsidentil==="peserta";
   var record = {
     tanggal: tanggal, jam: document.getElementById("iJam").value,
     tempat: document.getElementById("iTempat").value.trim(),
     jenisKegiatan: jenis, uraian: document.getElementById("iUraian").value.trim(),
-    sasaran: document.getElementById("iSasaran").value.trim(),
+    posisi: state.currentPosisiInsidentil,
+    sasaran: isPesertaIns ? "" : document.getElementById("iSasaran").value.trim(),
     totalOrang: parseInt(document.getElementById("iTotalOrang").value,10)||0,
     totalBiaya: getRawNumber(iTotalBiayaInput),
     rencanaTindakLanjut: document.getElementById("iRtl").value.trim()
@@ -2129,35 +2220,42 @@ function composeNarrativeLaporan(){
       var rincian, uraian;
       if(entry.type==="single"){
         var k = entry.k;
+        var isPesertaK = k.posisi==="peserta";
         var d = new Date(k.tanggal+"T00:00:00");
-        rincian = '<p><b>'+escapeHtml(k.jenisKegiatan)+'</b></p>';
+        rincian = '<p><b>'+escapeHtml(k.jenisKegiatan)+'</b>'+(isPesertaK?' <em>(sebagai peserta)</em>':'')+'</p>';
         rincian += "<p><b>Tanggal</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+")</p>";
         rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.tempat||"-")+"</p>";
-        rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.sasaran||"-")+"</p>";
-        rincian += "<p><b>Target Kegiatan</b>&nbsp;: "+escapeHtml(k.targetKegiatan||"-")+"</p>";
+        if(!isPesertaK) rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.sasaran||"-")+"</p>";
+        rincian += "<p><b>"+(isPesertaK?"Catatan Kegiatan":"Target Kegiatan")+"</b>&nbsp;: "+escapeHtml(k.targetKegiatan||"-")+"</p>";
         rincian += "<p><b>Anggaran Diajukan</b>&nbsp;: "+fmtRupiah(k.totalAnggaranAjuan)+"</p>";
 
         uraian = "";
         if(k.evaluasi){
           var ev = k.evaluasi;
           var statusText = ev.statusPelaksanaan==="sesuai" ? "Terlaksana sesuai jadwal" : (ev.statusPelaksanaan==="berubah" ? "Terlaksana dengan perubahan jadwal" : "Tidak terlaksana");
-          uraian += "<p>"+statusText+", dihadiri oleh "+(ev.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+".</p>";
-          uraian += "<p><b>Capaian target kegiatan :</b></p><p>"+escapeHtml(ev.capaianTarget||"-")+".</p>";
-          if(ev.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b></p><p>"+escapeHtml(ev.indikatorKeberhasilan)+"</p>";
-          if(ev.kendala) uraian += "<p><b>Kendala yang dihadapi :</b></p><p>"+escapeHtml(ev.kendala)+"</p>";
-          if(ev.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev.uraianEvaluasi)+"</p>";
-          if(ev.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b></p><p>"+escapeHtml(ev.rencanaTindakLanjut)+"</p>";
+          if(isPesertaK){
+            uraian += "<p>"+statusText+".</p>";
+            if(ev.uraianEvaluasi) uraian += "<p><b>Catatan kegiatan :</b></p><p>"+escapeHtml(ev.uraianEvaluasi)+"</p>";
+          } else {
+            uraian += "<p>"+statusText+", dihadiri oleh "+(ev.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+".</p>";
+            uraian += "<p><b>Capaian target kegiatan :</b></p><p>"+escapeHtml(ev.capaianTarget||"-")+".</p>";
+            if(ev.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b></p><p>"+escapeHtml(ev.indikatorKeberhasilan)+"</p>";
+            if(ev.kendala) uraian += "<p><b>Kendala yang dihadapi :</b></p><p>"+escapeHtml(ev.kendala)+"</p>";
+            if(ev.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev.uraianEvaluasi)+"</p>";
+            if(ev.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b></p><p>"+escapeHtml(ev.rencanaTindakLanjut)+"</p>";
+          }
         } else {
           uraian += "<p><em>Kegiatan ini belum memiliki catatan evaluasi.</em></p>";
         }
       } else {
         var items = entry.items;
         var first = items[0];
+        var isPesertaGroup = first.posisi==="peserta";
         var totalAnggaranGroup = items.reduce(function(s,x){ return s+(x.totalAnggaranAjuan||0); }, 0);
-        rincian = '<p><b>'+escapeHtml(first.jenisKegiatan)+'</b> <em>(dilaksanakan '+items.length+' kali bulan ini)</em></p>';
+        rincian = '<p><b>'+escapeHtml(first.jenisKegiatan)+'</b> <em>(dilaksanakan '+items.length+' kali bulan ini'+(isPesertaGroup?", sebagai peserta":"")+')</em></p>';
         rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.tempat||"-")+"</p>";
-        rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.sasaran||"-")+"</p>";
-        rincian += "<p><b>Target Kegiatan</b>&nbsp;: "+escapeHtml(first.targetKegiatan||"-")+"</p>";
+        if(!isPesertaGroup) rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.sasaran||"-")+"</p>";
+        rincian += "<p><b>"+(isPesertaGroup?"Catatan Kegiatan":"Target Kegiatan")+"</b>&nbsp;: "+escapeHtml(first.targetKegiatan||"-")+"</p>";
         rincian += "<p><b>Rincian Tanggal &amp; Anggaran per Sesi</b>&nbsp;:</p>";
         items.forEach(function(k){
           var d = new Date(k.tanggal+"T00:00:00");
@@ -2172,11 +2270,16 @@ function composeNarrativeLaporan(){
           if(k.evaluasi){
             var ev2 = k.evaluasi;
             var statusText2 = ev2.statusPelaksanaan==="sesuai" ? "Terlaksana sesuai jadwal" : (ev2.statusPelaksanaan==="berubah" ? "Terlaksana dengan perubahan jadwal" : "Tidak terlaksana");
-            uraian += "<p>"+statusText2+", dihadiri oleh "+(ev2.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+". Capaian target: "+escapeHtml(ev2.capaianTarget||"-")+".</p>";
-            if(ev2.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b> "+escapeHtml(ev2.indikatorKeberhasilan)+"</p>";
-            if(ev2.kendala) uraian += "<p><b>Kendala yang dihadapi :</b> "+escapeHtml(ev2.kendala)+"</p>";
-            if(ev2.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev2.uraianEvaluasi)+"</p>";
-            if(ev2.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b> "+escapeHtml(ev2.rencanaTindakLanjut)+"</p>";
+            if(isPesertaGroup){
+              uraian += "<p>"+statusText2+".</p>";
+              if(ev2.uraianEvaluasi) uraian += "<p><b>Catatan kegiatan :</b> "+escapeHtml(ev2.uraianEvaluasi)+"</p>";
+            } else {
+              uraian += "<p>"+statusText2+", dihadiri oleh "+(ev2.pesertaHadir||0)+" peserta"+(k.targetPeserta?" dari target "+k.targetPeserta+" peserta":"")+". Capaian target: "+escapeHtml(ev2.capaianTarget||"-")+".</p>";
+              if(ev2.indikatorKeberhasilan) uraian += "<p><b>Indikator keberhasilan :</b> "+escapeHtml(ev2.indikatorKeberhasilan)+"</p>";
+              if(ev2.kendala) uraian += "<p><b>Kendala yang dihadapi :</b> "+escapeHtml(ev2.kendala)+"</p>";
+              if(ev2.uraianEvaluasi) uraian += "<p>"+escapeHtml(ev2.uraianEvaluasi)+"</p>";
+              if(ev2.rencanaTindakLanjut) uraian += "<p><b>Rencana tindak lanjut :</b> "+escapeHtml(ev2.rencanaTindakLanjut)+"</p>";
+            }
           } else {
             uraian += "<p><em>Sesi ini belum memiliki catatan evaluasi.</em></p>";
           }
