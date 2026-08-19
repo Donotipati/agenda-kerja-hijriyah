@@ -119,14 +119,13 @@
   .btn-small.flex1{flex:1;}
 
   /* ---------- FAB & bottom nav ---------- */
-  .fab{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;justify-content:flex-end;padding-right:16px;pointer-events:none;z-index:20;}
-  .fab button{pointer-events:auto;background:var(--accent);color:#fff;border:none;width:56px;height:56px;border-radius:50%;font-size:26px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,0.35);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-  .fab button:active{transform:scale(0.94);}
-
-  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--cover-dark);display:flex;z-index:25;border-top:1px solid rgba(255,255,255,0.08);padding-bottom:env(safe-area-inset-bottom,0px);}
-  .bottom-nav button{flex:1;background:none;border:none;color:#8A95A0;padding:10px 4px 8px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;}
-  .bottom-nav button .ic{font-size:17px;}
-  .bottom-nav button.active{color:var(--accent-light);}
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--cover-dark);display:flex;align-items:flex-end;z-index:25;border-top:1px solid rgba(255,255,255,0.08);padding-bottom:env(safe-area-inset-bottom,0px);}
+  .bottom-nav button.nav-btn{flex:1;background:none;border:none;color:#8A95A0;padding:10px 4px 8px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;}
+  .bottom-nav button.nav-btn .ic{font-size:17px;}
+  .bottom-nav button.nav-btn.active{color:var(--accent-light);}
+  .nav-fab-slot{flex:0 0 auto;width:64px;display:flex;justify-content:center;}
+  .nav-fab-slot button{margin-top:-26px;background:var(--accent);color:#fff;border:3px solid var(--cover-dark);width:56px;height:56px;border-radius:50%;font-size:26px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,0.35);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .nav-fab-slot button:active{transform:scale(0.94);}
 
   /* ---------- Sheets ---------- */
   .sheet-backdrop{position:fixed;inset:0;background:rgba(19,29,41,0.6);display:none;z-index:40;align-items:flex-end;justify-content:center;}
@@ -204,11 +203,15 @@
 
   .setting-group{margin-bottom:20px;}
   .setting-group h3{font-size:13px;margin:0 0 8px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;font-family:"Courier New",monospace;}
-  .cat-row{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--paper-line);border-radius:10px;padding:9px 10px;margin-bottom:8px;}
-  .cat-row input[type="text"]{flex:1;border:none;padding:4px 2px;font-size:13.5px;font-weight:600;background:none;}
-  .cat-row input[type="text"]:focus{outline:none;}
-  .cat-row .rate-input{width:100px;padding:6px 8px;border:1px solid var(--paper-line);border-radius:7px;font-size:12.5px;text-align:right;}
-  .cat-row .del-btn{background:none;border:none;color:var(--danger);font-size:16px;cursor:pointer;padding:2px 4px;}
+  .cat-row{background:#fff;border:1px solid var(--paper-line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .cat-row-top{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .cat-row-top input[type="text"]{flex:1;border:none;border-bottom:1.5px solid var(--paper-line);padding:5px 2px;font-size:14.5px;font-weight:700;background:none;color:var(--ink);}
+  .cat-row-top input[type="text"]:focus{outline:none;border-bottom-color:var(--accent);}
+  .cat-row .del-btn{background:none;border:none;color:var(--danger);font-size:17px;cursor:pointer;padding:2px 4px;flex:none;}
+  .cat-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .cat-row-bottom .cat-tarif-label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;}
+  .cat-row .rate-input{width:130px;padding:7px 9px;border:1px solid var(--paper-line);border-radius:8px;font-size:13px;text-align:right;background:var(--paper);}
+  .cat-row-bottom .cat-ignored{font-size:11px;color:var(--danger);}
   .setting-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--paper-line);}
   .setting-row > div:first-child{flex:1;min-width:0;}
   .setting-row .lbl{font-size:13.5px;}
@@ -239,10 +242,9 @@
   @media (min-width:860px){
     body{align-items:flex-start;}
     .app{max-width:900px;box-shadow:0 0 40px rgba(0,0,0,0.25);}
-    .fab{max-width:900px;}
     .bottom-nav{max-width:900px;}
-    .bottom-nav button{font-size:12px;padding:12px 4px 10px;flex-direction:row;gap:7px;}
-    .bottom-nav button .ic{font-size:18px;}
+    .bottom-nav button.nav-btn{font-size:12px;padding:12px 4px 10px;flex-direction:row;gap:7px;}
+    .bottom-nav button.nav-btn .ic{font-size:18px;}
     .sheet-backdrop{align-items:center;padding:24px;}
     .sheet{border-radius:20px;max-width:640px;max-height:88vh;}
     .summary-row{grid-template-columns:repeat(4,1fr);}
@@ -256,7 +258,6 @@
   }
   @media (min-width:1200px){
     .app{max-width:1080px;}
-    .fab{max-width:1080px;}
     .bottom-nav{max-width:1080px;}
     .sheet{max-width:720px;}
   }
@@ -286,6 +287,7 @@
       <div class="topbar-tools">
         <button class="icon-btn" id="btnExport" title="Unduh backup">⬇</button>
         <button class="icon-btn" id="btnImport" title="Impor backup">⬆</button>
+        <button class="icon-btn" id="btnAturHeader" title="Pengaturan">⚙</button>
       </div>
     </div>
     <input type="file" id="fileImport" accept="application/json" style="display:none;">
@@ -384,20 +386,9 @@
           </div>
         </div>
       </div>
-      <button class="btn-primary btn" id="btnSaveInstansiHijri" style="width:100%;margin-bottom:20px;">Simpan</button>
-
-      <div class="section-title">Keamanan</div>
-      <div style="margin-bottom:10px;">
-        <div class="lbl">Kunci Aplikasi (PIN 6 Digit)</div>
-        <div class="desc" style="margin-bottom:8px;">Minta PIN setiap kali app dibuka. Kalau lupa PIN, bisa buka pakai kunci layar HP.</div>
-        <div class="toggle3" id="toggleKunciAplikasi">
-          <button type="button" data-val="ya">Ya</button>
-          <button type="button" data-val="tidak" class="active">Tidak</button>
-        </div>
-      </div>
-      <button class="btn-small" id="btnUbahPin" style="width:100%;margin-bottom:20px;display:none;">Ubah PIN</button>
 
       <div class="section-title">Kategori Pelaksana &amp; Operasional</div>
+      <p class="field-hint-after" style="margin:-6px 0 12px;">Tersimpan otomatis begitu diketik — gak perlu tombol Simpan terpisah.</p>
       <div id="kategoriListArea"></div>
       <button class="btn-small" id="btnTambahKategori" style="width:100%;margin-bottom:16px;">+ Tambah Kategori</button>
 
@@ -412,7 +403,19 @@
           <input type="text" inputmode="numeric" id="setTarifMaminPanjang">
         </div>
       </div>
-      <button class="btn btn-primary" id="btnSaveTarifMamin" style="width:100%;margin-bottom:20px;">Simpan Operasional Mamin</button>
+
+      <button class="btn-primary btn" id="btnSaveInstansiHijri" style="width:100%;margin-bottom:20px;">Simpan Pengaturan</button>
+
+      <div class="section-title">Keamanan</div>
+      <div style="margin-bottom:10px;">
+        <div class="lbl">Kunci Aplikasi (PIN 6 Digit)</div>
+        <div class="desc" style="margin-bottom:8px;">Minta PIN setiap kali app dibuka. Kalau lupa PIN, bisa buka pakai kunci layar HP.</div>
+        <div class="toggle3" id="toggleKunciAplikasi">
+          <button type="button" data-val="ya">Ya</button>
+          <button type="button" data-val="tidak" class="active">Tidak</button>
+        </div>
+      </div>
+      <button class="btn-small" id="btnUbahPin" style="width:100%;margin-bottom:20px;display:none;">Ubah PIN</button>
 
       <div class="section-title">Zona Berbahaya</div>
       <p class="empty-note" style="margin-bottom:8px;">Menghapus semua kegiatan &amp; pengaturan secara permanen. Sebaiknya unduh backup dulu.</p>
@@ -423,7 +426,13 @@
   </div>
 </div>
 
-<div class="fab"><button id="btnFab">＋</button></div>
+<div class="bottom-nav">
+  <button class="nav-btn active" data-tab="beranda"><span class="ic">⌂</span>Beranda</button>
+  <button class="nav-btn" data-tab="renja"><span class="ic">☑</span>RENJA</button>
+  <div class="nav-fab-slot"><button id="btnFab">＋</button></div>
+  <button class="nav-btn" data-tab="insidentil"><span class="ic">⚡</span>Insidentil</button>
+  <button class="nav-btn" data-tab="laporan"><span class="ic">▤</span>Laporan</button>
+</div>
 
 <div class="lock-overlay" id="lockOverlay">
   <div class="lock-box">
@@ -434,14 +443,6 @@
     <p class="lock-error" id="lockError"></p>
     <button type="button" class="lock-forgot" id="btnLockForgot">Lupa PIN? Gunakan kunci layar HP</button>
   </div>
-</div>
-
-<div class="bottom-nav">
-  <button class="nav-btn active" data-tab="beranda"><span class="ic">⌂</span>Beranda</button>
-  <button class="nav-btn" data-tab="insidentil"><span class="ic">⚡</span>Insidentil</button>
-  <button class="nav-btn" data-tab="renja"><span class="ic">☑</span>RENJA</button>
-  <button class="nav-btn" data-tab="laporan"><span class="ic">▤</span>Laporan</button>
-  <button class="nav-btn" data-tab="atur"><span class="ic">⚙</span>Atur</button>
 </div>
 
 <!-- ============ SHEET: FAB pilih jenis ============ -->
@@ -739,7 +740,6 @@ var DEFAULT_SETTINGS = {
   kategoriPelaksana: [
     {id:"ac", nama:"AC", tarif:0},
     {id:"ad", nama:"AD", tarif:0},
-    {id:"pst", nama:"PST", tarif:0},
     {id:"inko", nama:"INKO", tarif:0}
   ],
   tarifMaminPendek: 0,
@@ -1104,8 +1104,27 @@ document.querySelectorAll(".nav-btn").forEach(function(btn){
 });
 
 // ================= GLOBAL MONTH NAV =================
-function goPrevMonth(){ var h=currentViewHijri(); setViewHijri(h.year,h.month-1); renderAll(); }
-function goNextMonth(){ var h=currentViewHijri(); setViewHijri(h.year,h.month+1); renderAll(); }
+// Transisi geser halus pas kalender ganti bulan (arahnya ngikutin arah navigasi), biar gak
+// "cetak-cetak" langsung ganti kaku. Kalau elemen kalendernya lagi gak kelihatan (tab lain), diem
+// aja langsung ganti tanpa animasi.
+function animateMonthChange(direction, changeFn){
+  var wrap = document.querySelector("#tab-beranda .cal-grid-wrap");
+  if(!wrap){ changeFn(); return; }
+  wrap.style.transition = "opacity 140ms ease, transform 140ms ease";
+  wrap.style.opacity = "0";
+  wrap.style.transform = "translateX("+(direction*-14)+"px)";
+  setTimeout(function(){
+    changeFn();
+    wrap.style.transition = "none";
+    wrap.style.transform = "translateX("+(direction*14)+"px)";
+    void wrap.offsetWidth; // paksa reflow biar transisi berikutnya keitung dari sini
+    wrap.style.transition = "opacity 160ms ease, transform 160ms ease";
+    wrap.style.opacity = "1";
+    wrap.style.transform = "translateX(0)";
+  }, 140);
+}
+function goPrevMonth(){ animateMonthChange(-1, function(){ var h=currentViewHijri(); setViewHijri(h.year,h.month-1); renderAll(); }); }
+function goNextMonth(){ animateMonthChange(1, function(){ var h=currentViewHijri(); setViewHijri(h.year,h.month+1); renderAll(); }); }
 document.getElementById("prevMonthGlobal").addEventListener("click", goPrevMonth);
 document.getElementById("nextMonthGlobal").addEventListener("click", goNextMonth);
 
@@ -1446,10 +1465,15 @@ function renderKategoriList(){
     var row = document.createElement("div");
     row.className = "cat-row";
     row.innerHTML =
-      '<input type="text" value="'+escapeHtml(cat.nama)+'" data-idx="'+idx+'" class="cat-nama">'+
-      (ignored ? '<span style="font-size:11px;color:var(--danger);white-space:nowrap;">diabaikan</span>' :
-      '<input type="text" inputmode="numeric" class="rate-input cat-tarif" data-idx="'+idx+'" placeholder="Operasional">')+
-      '<button class="del-btn" data-idx="'+idx+'">✕</button>';
+      '<div class="cat-row-top">'+
+        '<input type="text" value="'+escapeHtml(cat.nama)+'" data-idx="'+idx+'" class="cat-nama" placeholder="Nama Kategori">'+
+        '<button class="del-btn" data-idx="'+idx+'">✕</button>'+
+      '</div>'+
+      '<div class="cat-row-bottom">'+
+        (ignored
+          ? '<span class="cat-ignored">Nama ini diabaikan dari perhitungan operasional</span>'
+          : '<span class="cat-tarif-label">Tarif Operasional</span><input type="text" inputmode="numeric" class="rate-input cat-tarif" data-idx="'+idx+'" placeholder="Rp 0">')+
+      '</div>';
     if(!ignored){
       var tarifInput = row.querySelector(".cat-tarif");
       formatNumberInput(tarifInput);
@@ -1490,17 +1514,13 @@ document.getElementById("btnSaveInstansiHijri").addEventListener("click", functi
   state.settings.namaInstansi = document.getElementById("setNamaInstansi").value.trim();
   var offRaw = parseInt(document.getElementById("setHijriOffset").value, 10);
   state.settings.hijriOffset = isNaN(offRaw) ? 0 : offRaw;
+  state.settings.tarifMaminPendek = getRawNumber(document.getElementById("setTarifMaminPendek"));
+  state.settings.tarifMaminPanjang = getRawNumber(document.getElementById("setTarifMaminPanjang"));
   save();
   renderCalendarGrid();
   document.getElementById("monthLabelHijri").textContent = hijriMonthRangeLabel();
   renderAll();
-  toast("Instansi & kalender Hijriah disimpan");
-});
-document.getElementById("btnSaveTarifMamin").addEventListener("click", function(){
-  state.settings.tarifMaminPendek = getRawNumber(document.getElementById("setTarifMaminPendek"));
-  state.settings.tarifMaminPanjang = getRawNumber(document.getElementById("setTarifMaminPanjang"));
-  save();
-  toast("Operasional mamin disimpan");
+  toast("Pengaturan disimpan");
 });
 
 document.getElementById("btnResetAll").addEventListener("click", function(){
@@ -2401,6 +2421,7 @@ document.getElementById("btnCetakLaporan").addEventListener("click", function(){
 });
 
 // ================= Backup / Restore =================
+document.getElementById("btnAturHeader").addEventListener("click", function(){ showTab("atur"); });
 document.getElementById("btnExport").addEventListener("click", async function(){
   var ok = await showConfirm("Unduh file backup semua data sekarang?", "Unduh");
   if(!ok) return;
