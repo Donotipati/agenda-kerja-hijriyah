@@ -123,9 +123,20 @@
   .bottom-nav button.nav-btn{flex:1;background:none;border:none;color:#8A95A0;padding:10px 4px 8px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;}
   .bottom-nav button.nav-btn .ic{font-size:17px;}
   .bottom-nav button.nav-btn.active{color:var(--accent-light);}
-  .nav-fab-slot{flex:0 0 auto;width:64px;display:flex;justify-content:center;}
-  .nav-fab-slot button{margin-top:-26px;background:var(--accent);color:#fff;border:3px solid var(--cover-dark);width:56px;height:56px;border-radius:50%;font-size:26px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,0.35);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-  .nav-fab-slot button:active{transform:scale(0.94);}
+  .nav-fab-slot{flex:0 0 auto;width:64px;display:flex;justify-content:center;position:relative;}
+  .nav-fab-slot > button#btnFab{margin-top:-26px;background:var(--accent);color:#fff;border:3px solid var(--cover-dark);width:56px;height:56px;border-radius:50%;font-size:26px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,0.35);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;position:relative;z-index:26;transition:transform .18s ease;}
+  .nav-fab-slot > button#btnFab:active{transform:scale(0.94);}
+  .fab-scrim{position:fixed;inset:0;background:rgba(10,14,20,0.35);opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:24;}
+  .fab-scrim.open{opacity:1;pointer-events:auto;}
+  .fab-bubbles{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);display:flex;flex-direction:column-reverse;align-items:center;gap:13px;z-index:26;pointer-events:none;}
+  .fab-bubble{opacity:0;transform:scale(0.5) translateY(10px);transition:opacity .16s ease, transform .16s ease;background:#fff;color:var(--ink);border:none;border-radius:24px;height:44px;padding:0 16px 0 8px;display:flex;align-items:center;gap:9px;box-shadow:0 4px 14px rgba(0,0,0,0.28);cursor:pointer;white-space:nowrap;font-family:inherit;font-size:12.5px;font-weight:700;pointer-events:none;}
+  .fab-bubble .fbicon{font-size:16px;width:28px;height:28px;border-radius:50%;background:var(--paper);display:flex;align-items:center;justify-content:center;flex:none;}
+  .fab-bubbles.open{pointer-events:auto;}
+  .fab-bubbles.open .fab-bubble{opacity:1;transform:scale(1) translateY(0);pointer-events:auto;}
+  .fab-bubbles.open ~ button#btnFab{transform:rotate(45deg);}
+  .fab-bubbles.open .fab-bubble:nth-child(1){transition-delay:.06s;}
+  .fab-bubbles.open .fab-bubble:nth-child(2){transition-delay:.03s;}
+  .fab-bubbles.open .fab-bubble:nth-child(3){transition-delay:0s;}
 
   /* ---------- Sheets ---------- */
   .sheet-backdrop{position:fixed;inset:0;background:rgba(19,29,41,0.6);display:none;z-index:40;align-items:flex-end;justify-content:center;}
@@ -212,6 +223,14 @@
   .cat-row-bottom .cat-tarif-label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;}
   .cat-row .rate-input{width:130px;padding:7px 9px;border:1px solid var(--paper-line);border-radius:8px;font-size:13px;text-align:right;background:var(--paper);}
   .cat-row-bottom .cat-ignored{font-size:11px;color:var(--danger);}
+  .pengingat-card{background:#fff;border:1px solid var(--paper-line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .pengingat-card .pg-periode{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;}
+  .pengingat-card .pg-teks{font-size:13.5px;line-height:1.6;color:var(--ink);margin-bottom:9px;white-space:pre-wrap;}
+  .pengingat-card .btn-tutup-pengingat{width:100%;}
+  .notepad-card{background:#fff;border:1px solid var(--paper-line);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;}
+  .notepad-card .np-teks{font-size:13.5px;line-height:1.55;color:var(--ink);margin-bottom:7px;white-space:pre-wrap;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;}
+  .notepad-card .np-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10.5px;color:var(--ink-soft);}
+  .notepad-card .np-kegiatan-tag{background:var(--accent-light);color:#fff;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;}
   .setting-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--paper-line);}
   .setting-row > div:first-child{flex:1;min-width:0;}
   .setting-row .lbl{font-size:13.5px;}
@@ -287,6 +306,10 @@
       <div class="topbar-tools">
         <button class="icon-btn" id="btnExport" title="Unduh backup">⬇</button>
         <button class="icon-btn" id="btnImport" title="Impor backup">⬆</button>
+        <button class="icon-btn" id="btnPengingatHeader" title="Pengingat dari Koordinator" style="position:relative;">
+          🔔<span id="pengingatBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:700;min-width:16px;height:16px;border-radius:8px;align-items:center;justify-content:center;padding:0 3px;line-height:1;"></span>
+        </button>
+        <button class="icon-btn" id="btnNotepadHeader" title="Catatan Bebas">📝</button>
         <button class="icon-btn" id="btnAturHeader" title="Pengaturan">⚙</button>
       </div>
     </div>
@@ -423,13 +446,39 @@
       <p class="empty-note" style="text-align:center;margin-top:14px;">Agenda Kerja · data 100% tersimpan lokal di perangkat ini</p>
     </div>
 
+    <!-- ============ TAB: NOTEPAD (catatan bebas, opsional kaitkan ke kegiatan) ============ -->
+    <div class="tab-panel" id="tab-notepad">
+      <div class="section-title first">Catatan Bebas</div>
+      <p class="field-hint-after" style="margin:-6px 0 12px;">Ruang bebas buat nyatet apa aja — bisa dikaitkan ke kegiatan tertentu (opsional) biar gampang dicari lagi nanti.</p>
+      <button class="btn btn-primary btn-block" id="btnTambahCatatan" style="margin-bottom:16px;">+ Catatan Baru</button>
+      <div id="notepadListWrap"></div>
+      <p class="empty-note" id="notepadEmptyNote">Belum ada catatan. Tulis yang pertama lewat tombol di atas.</p>
+    </div>
+
+    <!-- ============ TAB: PENGINGAT (dari Koordinator) ============ -->
+    <div class="tab-panel" id="tab-pengingat">
+      <div class="section-title first">Pengingat dari Koordinator</div>
+      <p class="field-hint-after" style="margin:-6px 0 12px;">Putusan yang ditujukan khusus buat instansi ini. Buat impor file baru, pakai tombol "+" di Beranda.</p>
+      <div id="arsipPengingatWrap"></div>
+      <p class="empty-note" id="arsipPengingatEmpty" style="margin-bottom:16px;">Belum ada pengingat yang diimpor. Tekan tombol "+" di Beranda untuk impor file dari koordinator.</p>
+    </div>
+
   </div>
 </div>
 
+<input type="file" id="filePengingatInstansi" accept=".json" style="display:none;">
 <div class="bottom-nav">
   <button class="nav-btn active" data-tab="beranda"><span class="ic">⌂</span>Beranda</button>
   <button class="nav-btn" data-tab="renja"><span class="ic">☑</span>RENJA</button>
-  <div class="nav-fab-slot"><button id="btnFab">＋</button></div>
+  <div class="nav-fab-slot">
+    <div class="fab-bubbles" id="fabBubbles">
+      <button class="fab-bubble" id="actImporPengingat" type="button"><span class="fbicon">📥</span><span class="fblabel">Impor Pengingat</span></button>
+      <button class="fab-bubble" id="actTambahInsidentil" type="button"><span class="fbicon">⚡</span><span class="fblabel">Kegiatan Insidentil</span></button>
+      <button class="fab-bubble" id="actTambahRenja" type="button"><span class="fbicon">☑</span><span class="fblabel">Kegiatan RENJA</span></button>
+    </div>
+    <div class="fab-scrim" id="fabScrim"></div>
+    <button id="btnFab">＋</button>
+  </div>
   <button class="nav-btn" data-tab="insidentil"><span class="ic">⚡</span>Insidentil</button>
   <button class="nav-btn" data-tab="laporan"><span class="ic">▤</span>Laporan</button>
 </div>
@@ -442,18 +491,6 @@
     <input type="password" inputmode="numeric" maxlength="6" id="lockPinInput" class="lock-pin-input" autocomplete="off">
     <p class="lock-error" id="lockError"></p>
     <button type="button" class="lock-forgot" id="btnLockForgot">Lupa PIN? Gunakan kunci layar HP</button>
-  </div>
-</div>
-
-<!-- ============ SHEET: FAB pilih jenis ============ -->
-<div class="sheet-backdrop" id="fabSheetBackdrop">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <h2>Tambah Catatan</h2>
-    <div class="btn-row" style="flex-direction:column;gap:10px;">
-      <button class="btn btn-primary" id="actTambahRenja" style="width:100%;">+ Kegiatan RENJA (Terencana)</button>
-      <button class="btn btn-teal" id="actTambahInsidentil" style="width:100%;">+ Kegiatan Insidentil (Dadakan)</button>
-    </div>
   </div>
 </div>
 
@@ -492,6 +529,51 @@
       <button class="btn btn-ghost" id="btnRealisasiGlobalCancel">Batal</button>
       <button class="btn btn-primary" id="btnRealisasiGlobalSave">Simpan</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ SHEET: Draft Belum Disimpan (jaring pengaman anti-hilang) ============ -->
+<div class="sheet-backdrop" id="draftRestoreBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Ada Isian Belum Disimpan</h2>
+    <p class="sub" id="draftRestoreMsg">Sepertinya sesi sebelumnya ditutup pas lagi isi form, dan belum sempat disimpan. Mau dilanjutin isiannya?</p>
+    <div class="btn-row" style="flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" id="btnDraftLanjutkan" style="width:100%;">Lanjutkan Isian</button>
+      <button class="btn btn-ghost" id="btnDraftBuang" style="width:100%;">Buang, Mulai Baru</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SHEET: Catatan Bebas (Notepad) ============ -->
+<div class="sheet-backdrop" id="notepadFormBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="notepadFormTitle">Catatan Baru</h2>
+    <div class="field">
+      <label>Isi Catatan</label>
+      <textarea id="notepadTeks" placeholder="Tulis apa aja di sini..." style="min-height:140px;"></textarea>
+    </div>
+    <div class="field">
+      <label>Kaitkan ke Kegiatan <span style="text-transform:none;letter-spacing:0;">(opsional)</span></label>
+      <select id="notepadKegiatanSelect"><option value="">— Gak dikaitkan ke kegiatan manapun —</option></select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="btnNotepadCancel">Batal</button>
+      <button class="btn btn-primary" id="btnNotepadSave">Simpan</button>
+    </div>
+    <button class="btn btn-danger btn-block" id="btnNotepadDelete" style="margin-top:10px;display:none;">Hapus Catatan Ini</button>
+  </div>
+</div>
+
+<!-- ============ SHEET: Pengingat dari Koordinator (khusus instansi ini, sesuai bulan) ============ -->
+<div class="sheet-backdrop" id="pengingatInstansiBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Pengingat dari Koordinator</h2>
+    <p class="sub" id="pengingatInstansiSub"></p>
+    <div id="pengingatInstansiListWrap"></div>
+    <button class="btn btn-ghost btn-block" id="btnPengingatInstansiTutupSemua" style="margin-top:8px;">Tutup Semua</button>
   </div>
 </div>
 
@@ -566,6 +648,11 @@
         <button type="button" data-val="peserta">Peserta</button>
       </div>
       <p class="field-hint-after" id="posisiHint">Kegiatan yang instansi kita selenggarakan sendiri.</p>
+    </div>
+    <div class="field">
+      <label>Pelaksana (Struktur)</label>
+      <input type="text" id="rPelaksanaStruktur" placeholder="mis. Kabag Umum, Tim IT, Kasi Kesejahteraan...">
+      <p class="field-hint-after">Tag jabatan/tim yang melaksanakan — bukan angka jumlah orang, ini cuma penanda struktur (opsional)</p>
     </div>
 
     <div class="section-title first">Waktu &amp; Tempat</div>
@@ -705,6 +792,11 @@
         <button type="button" data-val="peserta">Peserta</button>
       </div>
     </div>
+    <div class="field">
+      <label>Pelaksana (Struktur)</label>
+      <input type="text" id="iPelaksanaStruktur" placeholder="mis. Kabag Umum, Tim IT, Kasi Kesejahteraan...">
+      <p class="field-hint-after">Tag jabatan/tim yang melaksanakan — bukan angka jumlah orang, ini cuma penanda struktur (opsional)</p>
+    </div>
 
     <div class="field"><label>Tanggal</label><input type="text" id="iTanggal" readonly placeholder="Pilih tanggal Hijriyah"></div>
     <div class="field"><label>Jam</label><input type="time" id="iJam"></div>
@@ -767,7 +859,10 @@ var state = {
   currentStatusPelaksanaan: "sesuai",
   currentCapaianTarget: "tercapai",
   pendingJadikanKegiatanSource: null,
-  selectedCalDate: null
+  selectedCalDate: null,
+  pengingatInstansi: [],  // [{id, teks, periodeLabel, hijriYear, hijriMonth, tertutup, importedAt}]
+  notepad: [],            // [{id, teks, kegiatanId, createdAt, updatedAt}]
+  editingNotepadId: null
 };
 
 
@@ -813,12 +908,14 @@ function load(){
       if(!state.settings.kategoriPelaksana || state.settings.kategoriPelaksana.length===0){
         state.settings.kategoriPelaksana = DEFAULT_SETTINGS.kategoriPelaksana.slice();
       }
+      state.pengingatInstansi = data.pengingatInstansi || [];
+      state.notepad = data.notepad || [];
       var vh=dateToHijri(new Date()); state.viewHijri={year:vh.year,month:vh.month};
     }
   }catch(e){}
 }
 function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({kegiatan:state.kegiatan, insidentil:state.insidentil, realisasiGlobal:state.realisasiGlobal, settings:state.settings}));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({kegiatan:state.kegiatan, insidentil:state.insidentil, realisasiGlobal:state.realisasiGlobal, settings:state.settings, pengingatInstansi:state.pengingatInstansi, notepad:state.notepad}));
 }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function ymKeyOf(d){ return d.getFullYear()+"-"+(d.getMonth()+1); }
@@ -1093,6 +1190,7 @@ pickerBackdrop.addEventListener("click", function(e){ if(e.target===this) this.c
 
 // ================= TAB NAV =================
 function showTab(tab){
+  if(typeof closeFabBubbles==="function") closeFabBubbles();
   document.querySelectorAll(".nav-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.tab===tab); });
   document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
   document.getElementById("tab-"+tab).classList.add("active");
@@ -1553,20 +1651,38 @@ function renderAll(){
     document.getElementById("setHijriOffset").value = state.settings.hijriOffset || 0;
     renderAturLockToggle();
   }
+  else if(state.currentTab==="notepad") renderNotepadList();
+  else if(state.currentTab==="pengingat") renderArsipPengingat();
+  updatePengingatBadge();
 }
 
-// ================= FAB =================
-document.getElementById("btnFab").addEventListener("click", function(){ document.getElementById("fabSheetBackdrop").classList.add("open"); });
-document.getElementById("fabSheetBackdrop").addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+// ================= FAB (speed-dial bubble) =================
+var fabBubbles = document.getElementById("fabBubbles");
+var fabScrim = document.getElementById("fabScrim");
+function closeFabBubbles(){
+  fabBubbles.classList.remove("open");
+  fabScrim.classList.remove("open");
+}
+function toggleFabBubbles(){
+  var isOpen = fabBubbles.classList.contains("open");
+  if(isOpen) closeFabBubbles();
+  else { fabBubbles.classList.add("open"); fabScrim.classList.add("open"); }
+}
+document.getElementById("btnFab").addEventListener("click", toggleFabBubbles);
+fabScrim.addEventListener("click", closeFabBubbles);
 document.getElementById("actTambahRenja").addEventListener("click", function(){
-  document.getElementById("fabSheetBackdrop").classList.remove("open");
+  closeFabBubbles();
   if(!state.settings.sudahLihatPengingatAwal){ showSetupReminder(function(){ openRenjaForm(null); }); return; }
   openRenjaForm(null);
 });
 document.getElementById("actTambahInsidentil").addEventListener("click", function(){
-  document.getElementById("fabSheetBackdrop").classList.remove("open");
+  closeFabBubbles();
   if(!state.settings.sudahLihatPengingatAwal){ showSetupReminder(function(){ openInsidentilForm(null); }); return; }
   openInsidentilForm(null);
+});
+document.getElementById("actImporPengingat").addEventListener("click", function(){
+  closeFabBubbles();
+  document.getElementById("filePengingatInstansi").click();
 });
 
 // ================= SHEET: Pengingat Setup Awal =================
@@ -1693,6 +1809,8 @@ document.getElementById("toggleIsReguler").querySelectorAll("button").forEach(fu
 
 function openRenjaForm(k, prefill){
   state.editingKegiatanId = k ? k.id : null;
+  currentOpenFormType = "renja";
+  draftDirty = false;
   document.getElementById("renjaFormTitle").textContent = k ? "Edit Kegiatan" : "Kegiatan Baru";
   document.getElementById("btnRenjaDelete").style.display = k ? "block" : "none";
 
@@ -1702,6 +1820,7 @@ function openRenjaForm(k, prefill){
   document.getElementById("rJenis").value = k ? (k.jenisKegiatan||"") : (prefill&&prefill.jenisKegiatan ? prefill.jenisKegiatan : "");
   document.getElementById("rTarget").value = k ? (k.targetKegiatan||"") : (prefill&&prefill.targetKegiatan ? prefill.targetKegiatan : "");
   document.getElementById("rSasaran").value = k ? (k.sasaran||"") : (prefill&&prefill.sasaran ? prefill.sasaran : "");
+  document.getElementById("rPelaksanaStruktur").value = k ? (k.pelaksanaStruktur||"") : "";
   document.getElementById("rJumlahPelaksanaan").value = "";
   document.getElementById("rJumlahPelaksanaanWrap").style.display = k ? "none" : "block";
   document.getElementById("rTargetPeserta").value = k ? (k.targetPeserta||"") : "";
@@ -1745,8 +1864,8 @@ function openRenjaForm(k, prefill){
 
   renjaFormBackdrop.classList.add("open");
 }
-document.getElementById("btnRenjaCancel").addEventListener("click", function(){ renjaFormBackdrop.classList.remove("open"); });
-renjaFormBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+document.getElementById("btnRenjaCancel").addEventListener("click", function(){ clearDraft(); renjaFormBackdrop.classList.remove("open"); });
+renjaFormBackdrop.addEventListener("click", function(e){ if(e.target===this){ clearDraft(); this.classList.remove("open"); } });
 
 function buildRenjaRecordFromForm(tanggal){
   var jenis = document.getElementById("rJenis").value.trim();
@@ -1763,6 +1882,7 @@ function buildRenjaRecordFromForm(tanggal){
     tempat: document.getElementById("rTempat").value.trim(),
     jenisKegiatan: jenis,
     posisi: state.currentPosisi,
+    pelaksanaStruktur: document.getElementById("rPelaksanaStruktur").value.trim(),
     targetKegiatan: document.getElementById("rTarget").value.trim(),
     sasaran: isPeserta ? "" : document.getElementById("rSasaran").value.trim(),
     targetPeserta: targetPesertaVal,
@@ -1803,6 +1923,7 @@ function finalizeVolumeDuplicates(dates){
   state.pendingSumberKegiatan = null;
   state.pendingSumberRefId = null;
   save(); renderAll();
+  clearDraft();
   renjaFormBackdrop.classList.remove("open");
   toast(dates.length+" kegiatan dibuat dalam 1 Rangkaian");
 }
@@ -1860,6 +1981,7 @@ document.getElementById("btnRenjaSave").addEventListener("click", function(){
   state.pendingSumberKegiatan = null;
   state.pendingSumberRefId = null;
   save(); renderAll();
+  clearDraft();
   renjaFormBackdrop.classList.remove("open");
 });
 document.getElementById("btnRenjaDelete").addEventListener("click", function(){
@@ -1940,6 +2062,8 @@ eDanaTambahanInput.addEventListener("input", updateAnggaranSelisih);
 
 function openEvaluasiForm(k){
   currentEvaluasiKegiatan = k;
+  currentOpenFormType = "evaluasi";
+  draftDirty = false;
   document.getElementById("evaluasiKegiatanInfo").textContent = k.jenisKegiatan + " · " + fullDateLabel(isoToDate(k.tanggal));
   var ev = k.evaluasi || {};
   state.currentStatusPelaksanaan = ev.statusPelaksanaan || "sesuai";
@@ -1995,8 +2119,8 @@ function openEvaluasiForm(k){
 
   evaluasiFormBackdrop.classList.add("open");
 }
-document.getElementById("btnEvaluasiCancel").addEventListener("click", function(){ evaluasiFormBackdrop.classList.remove("open"); });
-evaluasiFormBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+document.getElementById("btnEvaluasiCancel").addEventListener("click", function(){ clearDraft(); evaluasiFormBackdrop.classList.remove("open"); });
+evaluasiFormBackdrop.addEventListener("click", function(e){ if(e.target===this){ clearDraft(); this.classList.remove("open"); } });
 
 document.getElementById("btnEvaluasiSave").addEventListener("click", function(){
   if(!currentEvaluasiKegiatan) return;
@@ -2019,6 +2143,7 @@ document.getElementById("btnEvaluasiSave").addEventListener("click", function(){
     save(); renderAll();
     toast("Evaluasi disimpan");
   }
+  clearDraft();
   evaluasiFormBackdrop.classList.remove("open");
 });
 
@@ -2048,6 +2173,8 @@ document.getElementById("toggleInsidentilPosisi").querySelectorAll("button").for
 });
 function openInsidentilForm(it){
   state.editingInsidentilId = it ? it.id : null;
+  currentOpenFormType = "insidentil";
+  draftDirty = false;
   document.getElementById("insidentilFormTitle").textContent = it ? "Edit Kegiatan Insidentil" : "Kegiatan Insidentil";
   document.getElementById("btnInsidentilDelete").style.display = it ? "block" : "none";
   setHijriField("iTanggal", it ? it.tanggal : todayISO());
@@ -2056,6 +2183,7 @@ function openInsidentilForm(it){
   document.getElementById("iJenis").value = it ? (it.jenisKegiatan||"") : "";
   document.getElementById("iUraian").value = it ? (it.uraian||"") : "";
   document.getElementById("iSasaran").value = it ? (it.sasaran||"") : "";
+  document.getElementById("iPelaksanaStruktur").value = it ? (it.pelaksanaStruktur||"") : "";
   document.getElementById("iTotalOrang").value = it ? (it.totalOrang||"") : "";
   setNumberInputValue(iTotalBiayaInput, it ? (it.totalBiaya||0) : 0);
   document.getElementById("iRtl").value = it ? (it.rencanaTindakLanjut||"") : "";
@@ -2064,8 +2192,8 @@ function openInsidentilForm(it){
   updateInsidentilPosisiUI();
   insidentilFormBackdrop.classList.add("open");
 }
-document.getElementById("btnInsidentilCancel").addEventListener("click", function(){ insidentilFormBackdrop.classList.remove("open"); });
-insidentilFormBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+document.getElementById("btnInsidentilCancel").addEventListener("click", function(){ clearDraft(); insidentilFormBackdrop.classList.remove("open"); });
+insidentilFormBackdrop.addEventListener("click", function(e){ if(e.target===this){ clearDraft(); this.classList.remove("open"); } });
 
 document.getElementById("btnInsidentilSave").addEventListener("click", function(){
   var tanggal = getHijriFieldISO("iTanggal");
@@ -2078,6 +2206,7 @@ document.getElementById("btnInsidentilSave").addEventListener("click", function(
     tempat: document.getElementById("iTempat").value.trim(),
     jenisKegiatan: jenis, uraian: document.getElementById("iUraian").value.trim(),
     posisi: state.currentPosisiInsidentil,
+    pelaksanaStruktur: document.getElementById("iPelaksanaStruktur").value.trim(),
     sasaran: isPesertaIns ? "" : document.getElementById("iSasaran").value.trim(),
     totalOrang: parseInt(document.getElementById("iTotalOrang").value,10)||0,
     totalBiaya: getRawNumber(iTotalBiayaInput),
@@ -2095,6 +2224,7 @@ document.getElementById("btnInsidentilSave").addEventListener("click", function(
   var savedInsidentil = state.insidentil.find(function(x){return x.id===(state.editingInsidentilId||record.id);}) || record;
   scheduleAgendaNotification(savedInsidentil,"insidentil");
   save(); renderAll();
+  clearDraft();
   insidentilFormBackdrop.classList.remove("open");
 });
 document.getElementById("btnInsidentilDelete").addEventListener("click", function(){
@@ -2145,7 +2275,7 @@ function generateRenjaXlsHtml(){
   function col(group, label){ cols.push({group:group, label:label}); }
   col("", "No");
   col("Tanggal","Hari"); col("Tanggal","Tgl"); col("Tanggal","Bln");
-  col("", "Jam"); col("", "Tempat"); col("", "Jenis Kegiatan"); col("", "Target Kegiatan");
+  col("", "Jam"); col("", "Tempat"); col("", "Jenis Kegiatan"); col("", "Pelaksana (Struktur)"); col("", "Target Kegiatan");
   col("", "Sasaran"); col("", "Jumlah Pelaksanaan"); col("", "Target Peserta"); col("", "Durasi"); col("", "Nama Rangkaian");
   kategoriList.forEach(function(cat){ col("Pelaksana & Operasional", cat.nama); });
   col("Pelaksana & Operasional", "TTL");
@@ -2183,7 +2313,7 @@ function generateRenjaXlsHtml(){
     var volumeLabel = k.volumeSesiTotal && k.volumeSesiTotal>1 ? ("Sesi "+k.volumeSesiIndex+" dari "+k.volumeSesiTotal) : "1 kali";
     var vals = [
       idx+1, DOW[d.getDay()], dateToHijri(d).day, HIJRI_MONTHS[dateToHijri(d).month-1],
-      k.jam||"", k.tempat||"", k.jenisKegiatan||"", k.targetKegiatan||"",
+      k.jam||"", k.tempat||"", k.jenisKegiatan||"", k.pelaksanaStruktur||"", k.targetKegiatan||"",
       k.sasaran||"", volumeLabel, k.targetPeserta||0, (k.durasi==="panjang"?">4 Jam":"≤4 Jam"), k.namaRangkaian||""
     ];
     kategoriList.forEach(function(cat){
@@ -2301,6 +2431,7 @@ function composeNarrativeLaporan(){
         rincian = '<p><b>'+escapeHtml(k.jenisKegiatan)+'</b>'+(isPesertaK?' <em>(sebagai peserta)</em>':'')+'</p>';
         rincian += "<p><b>Tanggal</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+")</p>";
         rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.tempat||"-")+"</p>";
+        if(k.pelaksanaStruktur) rincian += "<p><b>Pelaksana</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.pelaksanaStruktur)+"</p>";
         if(!isPesertaK) rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(k.sasaran||"-")+"</p>";
         rincian += "<p><b>"+(isPesertaK?"Catatan Kegiatan":"Target Kegiatan")+"</b>&nbsp;: "+escapeHtml(k.targetKegiatan||"-")+"</p>";
         rincian += "<p><b>Anggaran Diajukan</b>&nbsp;: "+fmtRupiah(k.totalAnggaranAjuan)+"</p>";
@@ -2330,6 +2461,7 @@ function composeNarrativeLaporan(){
         var totalAnggaranGroup = items.reduce(function(s,x){ return s+(x.totalAnggaranAjuan||0); }, 0);
         rincian = '<p><b>'+escapeHtml(first.jenisKegiatan)+'</b> <em>(dilaksanakan '+items.length+' kali bulan ini'+(isPesertaGroup?", sebagai peserta":"")+')</em></p>';
         rincian += "<p><b>Tempat</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.tempat||"-")+"</p>";
+        if(first.pelaksanaStruktur) rincian += "<p><b>Pelaksana</b>&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.pelaksanaStruktur)+"</p>";
         if(!isPesertaGroup) rincian += "<p><b>Sasaran</b>&nbsp;&nbsp;&nbsp;&nbsp;: "+escapeHtml(first.sasaran||"-")+"</p>";
         rincian += "<p><b>"+(isPesertaGroup?"Catatan Kegiatan":"Target Kegiatan")+"</b>&nbsp;: "+escapeHtml(first.targetKegiatan||"-")+"</p>";
         rincian += "<p><b>Rincian Tanggal &amp; Anggaran per Sesi</b>&nbsp;:</p>";
@@ -2387,6 +2519,7 @@ function composeNarrativeLaporan(){
       var rincian = "<p><b>"+escapeHtml(it.jenisKegiatan)+"</b></p>";
       rincian += "<p>Tanggal: "+escapeHtml(hijriDateLabel(d))+" ("+escapeHtml(gregorianDateLabel(d))+")</p>";
       rincian += "<p>Tempat: "+escapeHtml(it.tempat||"-")+"</p>";
+      if(it.pelaksanaStruktur) rincian += "<p>Pelaksana: "+escapeHtml(it.pelaksanaStruktur)+"</p>";
       rincian += "<p>Sasaran: "+escapeHtml(it.sasaran||"-")+"</p>";
       rincian += "<p>Total Orang Terlibat: "+(it.totalOrang||0)+"</p>";
       rincian += "<p>Total Biaya: "+fmtRupiah(it.totalBiaya)+"</p>";
@@ -2422,6 +2555,8 @@ document.getElementById("btnCetakLaporan").addEventListener("click", function(){
 
 // ================= Backup / Restore =================
 document.getElementById("btnAturHeader").addEventListener("click", function(){ showTab("atur"); });
+document.getElementById("btnNotepadHeader").addEventListener("click", function(){ showTab("notepad"); });
+document.getElementById("btnPengingatHeader").addEventListener("click", function(){ showTab("pengingat"); });
 document.getElementById("btnExport").addEventListener("click", async function(){
   var ok = await showConfirm("Unduh file backup semua data sekarang?", "Unduh");
   if(!ok) return;
@@ -2457,11 +2592,356 @@ document.getElementById("fileImport").addEventListener("change", function(e){
 });
 
 if(!state.viewHijri){var _vh=dateToHijri(new Date());state.viewHijri={year:_vh.year,month:_vh.month};state.viewDate=findGregorianForHijri(_vh.year,_vh.month)||new Date();}
+
+// ================= PENGINGAT DARI KOORDINATOR (Putusan Khusus Instansi) =================
+// File "Pengingat untuk Instansi" dari App2 berisi putusan dari BANYAK instansi sekaligus (1 file
+// yang sama dikirim ke semua) — App1 nyaring sendiri cuma yang namanya cocok sama Nama Instansi
+// di Pengaturan. Disimpan sebagai arsip (beberapa periode/bulan bisa numpuk), muncul popup pas app
+// dibuka/aktif lagi, difilter sesuai bulan yang lagi ditampilin di Beranda.
+function namesMatch(a, b){
+  return (a||"").trim().toLowerCase() === (b||"").trim().toLowerCase();
+}
+document.getElementById("filePengingatInstansi").addEventListener("change", function(e){
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      if(data.aplikasi !== "rangkuman-pengingat-instansi"){
+        toast("File ini bukan Pengingat untuk Instansi dari Rangkuman Kerja");
+      } else {
+        var namaInstansi = state.settings.namaInstansi || "";
+        if(!namaInstansi.trim()){
+          toast("Isi Nama Instansi di Pengaturan dulu, biar bisa nyaring pengingat yang cocok");
+        } else {
+          var existingIds = new Set(state.pengingatInstansi.map(function(p){return p.id;}));
+          var cocok = (data.putusanList||[]).filter(function(b){
+            return (b.instansiTerpilih||[]).some(function(nm){ return namesMatch(nm, namaInstansi); });
+          });
+          var added = 0;
+          cocok.forEach(function(b){
+            if(existingIds.has(b.id)) return; // udah pernah diimpor, jangan dobel & jangan reset status Tutup
+            state.pengingatInstansi.push({
+              id: b.id, teks: b.teks, periodeLabel: b.periodeLabel||"-",
+              hijriYear: b.hijriYear||null, hijriMonth: b.hijriMonth||null,
+              tertutup: false, importedAt: Date.now()
+            });
+            added++;
+          });
+          save();
+          renderArsipPengingat();
+          updatePengingatBadge();
+          toast(added>0 ? added+" pengingat baru buat "+namaInstansi : "Gak ada pengingat baru buat "+namaInstansi+" di file ini");
+          if(added>0) checkPengingatInstansiPopup();
+        }
+      }
+    }catch(err){ toast("Gagal membaca file pengingat"); }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+function renderArsipPengingat(){
+  var wrap = document.getElementById("arsipPengingatWrap");
+  if(!wrap) return;
+  var sorted = state.pengingatInstansi.slice().sort(function(a,b){ return b.importedAt-a.importedAt; });
+  document.getElementById("arsipPengingatEmpty").style.display = sorted.length ? "none" : "block";
+  wrap.innerHTML = "";
+  sorted.forEach(function(p){
+    var card = document.createElement("div");
+    card.className = "pengingat-card";
+    card.innerHTML =
+      '<div class="pg-periode">'+escapeHtml(p.periodeLabel)+(p.tertutup?" · Sudah ditutup":"")+'</div>'+
+      '<div class="pg-teks">'+escapeHtml(p.teks)+'</div>';
+    wrap.appendChild(card);
+  });
+}
+
+// Badge angka di ikon 🔔 header — jumlah pengingat aktif (belum ditutup) yang relevan buat bulan
+// yang lagi ditampilin di Beranda. Dipanggil tiap renderAll() jadi selalu up-to-date.
+function updatePengingatBadge(){
+  var badge = document.getElementById("pengingatBadge");
+  if(!badge || !state.viewHijri) return;
+  var count = state.pengingatInstansi.filter(function(p){
+    if(p.tertutup) return false;
+    if(p.hijriYear==null) return true;
+    return p.hijriYear===state.viewHijri.year && p.hijriMonth===state.viewHijri.month;
+  }).length;
+  if(count>0){ badge.textContent = count>99?"99+":String(count); badge.style.display = "flex"; }
+  else { badge.style.display = "none"; }
+}
+
+// Cek pengingat yang cocok BULAN yang lagi ditampilin di Beranda (state.viewHijri) dan belum
+// ditutup. Pengingat tanpa periode (hijriYear null, dari putusan "Umum" di App2) selalu dianggap
+// relevan, gak peduli lagi liat bulan apa.
+function checkPengingatInstansiPopup(){
+  if(!state.viewHijri) return;
+  var relevan = state.pengingatInstansi.filter(function(p){
+    if(p.tertutup) return false;
+    if(p.hijriYear==null) return true;
+    return p.hijriYear===state.viewHijri.year && p.hijriMonth===state.viewHijri.month;
+  });
+  if(relevan.length===0) return;
+  document.getElementById("pengingatInstansiSub").textContent = relevan.length+" pengingat buat "+monthLabel(state.viewDate);
+  var wrap = document.getElementById("pengingatInstansiListWrap");
+  wrap.innerHTML = "";
+  relevan.forEach(function(p){
+    var card = document.createElement("div");
+    card.className = "pengingat-card";
+    card.innerHTML =
+      '<div class="pg-periode">'+escapeHtml(p.periodeLabel)+'</div>'+
+      '<div class="pg-teks">'+escapeHtml(p.teks)+'</div>'+
+      '<button class="btn-small btn-tutup-pengingat" data-id="'+p.id+'">Tutup</button>';
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll(".btn-tutup-pengingat").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var p = state.pengingatInstansi.find(function(x){ return x.id===btn.dataset.id; });
+      if(p){ p.tertutup = true; save(); renderArsipPengingat(); updatePengingatBadge(); }
+      btn.closest(".pengingat-card").remove();
+      if(wrap.children.length===0) pengingatInstansiBackdrop.classList.remove("open");
+    });
+  });
+  pengingatInstansiBackdrop.classList.add("open");
+}
+var pengingatInstansiBackdrop = document.getElementById("pengingatInstansiBackdrop");
+document.getElementById("btnPengingatInstansiTutupSemua").addEventListener("click", function(){
+  var ids = Array.from(document.querySelectorAll(".btn-tutup-pengingat")).map(function(b){ return b.dataset.id; });
+  ids.forEach(function(id){
+    var p = state.pengingatInstansi.find(function(x){ return x.id===id; });
+    if(p) p.tertutup = true;
+  });
+  save();
+  renderArsipPengingat();
+  updatePengingatBadge();
+  pengingatInstansiBackdrop.classList.remove("open");
+});
+pengingatInstansiBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+
+// Trigger: pas app pertama dibuka, dan pas app kembali aktif dari background/minimize (BUKAN
+// pas pindah tab di dalam app, BUKAN pas ganti bulan manual — cuma buka/resume beneran).
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible") checkPengingatInstansiPopup();
+});
+window.addEventListener("focus", function(){ checkPengingatInstansiPopup(); });
+
+// ================= NOTEPAD (catatan bebas, opsional kaitkan ke kegiatan) =================
+function renderNotepadList(){
+  var wrap = document.getElementById("notepadListWrap");
+  if(!wrap) return;
+  var sorted = state.notepad.slice().sort(function(a,b){ return (b.updatedAt||b.createdAt)-(a.updatedAt||a.createdAt); });
+  document.getElementById("notepadEmptyNote").style.display = sorted.length ? "none" : "block";
+  wrap.innerHTML = "";
+  sorted.forEach(function(n){
+    var k = n.kegiatanId ? state.kegiatan.find(function(x){ return x.id===n.kegiatanId; }) : null;
+    var card = document.createElement("div");
+    card.className = "notepad-card";
+    var tanggalLabel = new Date(n.updatedAt||n.createdAt).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+    card.innerHTML =
+      '<div class="np-teks">'+escapeHtml(n.teks)+'</div>'+
+      '<div class="np-meta"><span>'+tanggalLabel+'</span>'+
+      (k ? '<span class="np-kegiatan-tag">'+escapeHtml(k.jenisKegiatan||"(kegiatan)")+'</span>' : '')+
+      '</div>';
+    card.addEventListener("click", function(){ openNotepadForm(n); });
+    wrap.appendChild(card);
+  });
+}
+function populateNotepadKegiatanSelect(selectedId){
+  var sel = document.getElementById("notepadKegiatanSelect");
+  var sorted = state.kegiatan.slice().sort(function(a,b){ return b.tanggal.localeCompare(a.tanggal); });
+  sel.innerHTML = '<option value="">— Gak dikaitkan ke kegiatan manapun —</option>' +
+    sorted.map(function(k){
+      var d = new Date(k.tanggal+"T00:00:00");
+      var label = (k.jenisKegiatan||"(tanpa nama)")+" — "+fullDateLabel(d);
+      return '<option value="'+k.id+'"'+(k.id===selectedId?" selected":"")+'>'+escapeHtml(label)+'</option>';
+    }).join("");
+}
+function openNotepadForm(n){
+  state.editingNotepadId = n ? n.id : null;
+  document.getElementById("notepadFormTitle").textContent = n ? "Edit Catatan" : "Catatan Baru";
+  document.getElementById("notepadTeks").value = n ? n.teks : "";
+  populateNotepadKegiatanSelect(n ? n.kegiatanId : null);
+  document.getElementById("btnNotepadDelete").style.display = n ? "block" : "none";
+  notepadFormBackdrop.classList.add("open");
+}
+document.getElementById("btnTambahCatatan").addEventListener("click", function(){ openNotepadForm(null); });
+var notepadFormBackdrop = document.getElementById("notepadFormBackdrop");
+document.getElementById("btnNotepadCancel").addEventListener("click", function(){ notepadFormBackdrop.classList.remove("open"); });
+notepadFormBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+document.getElementById("btnNotepadSave").addEventListener("click", function(){
+  var teks = document.getElementById("notepadTeks").value.trim();
+  if(!teks){ toast("Isi catatannya dulu"); return; }
+  var kegiatanId = document.getElementById("notepadKegiatanSelect").value || null;
+  if(state.editingNotepadId){
+    var n = state.notepad.find(function(x){ return x.id===state.editingNotepadId; });
+    if(n){ n.teks = teks; n.kegiatanId = kegiatanId; n.updatedAt = Date.now(); }
+  } else {
+    state.notepad.push({ id: uid(), teks: teks, kegiatanId: kegiatanId, createdAt: Date.now(), updatedAt: Date.now() });
+  }
+  save();
+  notepadFormBackdrop.classList.remove("open");
+  renderNotepadList();
+  toast("Catatan disimpan");
+});
+document.getElementById("btnNotepadDelete").addEventListener("click", async function(){
+  var ok = await showConfirm("Catatan ini akan dihapus permanen. Yakin?", "Hapus");
+  if(!ok) return;
+  state.notepad = state.notepad.filter(function(x){ return x.id!==state.editingNotepadId; });
+  save();
+  notepadFormBackdrop.classList.remove("open");
+  renderNotepadList();
+  toast("Catatan dihapus");
+});
+
+// ================= DRAFT SEDANG DIKETIK (jaring pengaman anti-hilang) =================
+// Tiap kali ada input di form Kegiatan/Insidentil/Evaluasi yang lagi kebuka, isiannya otomatis
+// "disimpan sementara" (bukan permanen ke daftar kegiatan) ke localStorage tersendiri, biar kalau
+// app ketutup/nge-crash sebelum sempat tekan Simpan, isiannya bisa dipulihin pas dibuka lagi.
+var DRAFT_KEY = "agendakerja_draft_v1";
+var currentOpenFormType = null; // "renja" | "insidentil" | "evaluasi" | null
+var draftDirty = false;
+var draftSaveTimer = null;
+
+function markFormDirty(){
+  if(!currentOpenFormType) return;
+  draftDirty = true;
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(saveDraftNow, 1200);
+}
+function snapshotFormFields(sheetId){
+  var sheet = document.getElementById(sheetId);
+  var fields = {};
+  if(!sheet) return fields;
+  sheet.querySelectorAll("input[id], textarea[id]").forEach(function(el){ fields[el.id] = el.value; });
+  return fields;
+}
+function restoreFormFields(sheetId, fields){
+  var sheet = document.getElementById(sheetId);
+  if(!sheet || !fields) return;
+  Object.keys(fields).forEach(function(id){
+    var el = sheet.querySelector("#"+id);
+    if(el) el.value = fields[id];
+  });
+}
+function saveDraftNow(){
+  if(!currentOpenFormType || !draftDirty) return;
+  var draft = { type: currentOpenFormType, savedAt: Date.now() };
+  if(currentOpenFormType==="renja"){
+    draft.editingId = state.editingKegiatanId;
+    draft.fields = snapshotFormFields("renjaFormBackdrop");
+    draft.posisi = state.currentPosisi;
+    draft.durasi = state.currentDurasi;
+    draft.isReguler = state.currentIsReguler;
+    draft.pelaksanaBreakdown = getPelaksanaBreakdown();
+  } else if(currentOpenFormType==="insidentil"){
+    draft.editingId = state.editingInsidentilId;
+    draft.fields = snapshotFormFields("insidentilFormBackdrop");
+    draft.posisi = state.currentPosisiInsidentil;
+  } else if(currentOpenFormType==="evaluasi"){
+    draft.editingId = currentEvaluasiKegiatan ? currentEvaluasiKegiatan.id : null;
+    draft.fields = snapshotFormFields("evaluasiFormBackdrop");
+    draft.statusPelaksanaan = state.currentStatusPelaksanaan;
+    draft.capaianTarget = state.currentCapaianTarget;
+  }
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); }catch(e){}
+}
+function clearDraft(){
+  currentOpenFormType = null;
+  draftDirty = false;
+  clearTimeout(draftSaveTimer);
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+}
+// Dipanggil dari Electron (lewat preload) pas tombol close jendela dipencet, buat nentuin perlu
+// nampilin warning native apa nggak. Di Android gak dipanggil siapa-siapa, gak ngaruh apa-apa.
+function hasUnsavedFormOpen(){ return !!currentOpenFormType && draftDirty; }
+window.hasUnsavedFormOpen = hasUnsavedFormOpen;
+
+["renjaFormBackdrop","insidentilFormBackdrop","evaluasiFormBackdrop"].forEach(function(id){
+  var el = document.getElementById(id);
+  if(el) el.addEventListener("input", markFormDirty);
+});
+
+var draftRestoreBackdrop = document.getElementById("draftRestoreBackdrop");
+var pendingDraft = null;
+function checkDraftOnLoad(){
+  var raw;
+  try{ raw = localStorage.getItem(DRAFT_KEY); }catch(e){ raw = null; }
+  if(!raw) return;
+  var draft;
+  try{ draft = JSON.parse(raw); }catch(e){ localStorage.removeItem(DRAFT_KEY); return; }
+  if(!draft || !draft.type) return;
+  pendingDraft = draft;
+  var label = draft.type==="renja" ? "Kegiatan RENJA" : draft.type==="insidentil" ? "Kegiatan Insidentil" : "Evaluasi Kegiatan";
+  document.getElementById("draftRestoreMsg").textContent = "Sepertinya sesi sebelumnya ketutup pas lagi isi "+label+", dan belum sempat disimpan. Mau dilanjutin isiannya?";
+  draftRestoreBackdrop.classList.add("open");
+}
+document.getElementById("btnDraftBuang").addEventListener("click", function(){
+  clearDraft();
+  pendingDraft = null;
+  draftRestoreBackdrop.classList.remove("open");
+});
+document.getElementById("btnDraftLanjutkan").addEventListener("click", function(){
+  var draft = pendingDraft;
+  draftRestoreBackdrop.classList.remove("open");
+  if(!draft) return;
+  if(draft.type==="renja"){
+    var k = draft.editingId ? state.kegiatan.find(function(x){return x.id===draft.editingId;}) : null;
+    openRenjaForm(k||null);
+    restoreFormFields("renjaFormBackdrop", draft.fields);
+    if(draft.posisi){
+      state.currentPosisi = draft.posisi;
+      document.querySelectorAll("#toggleRenjaPosisi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===draft.posisi); });
+      updateRenjaPosisiUI();
+    }
+    if(draft.durasi){
+      state.currentDurasi = draft.durasi;
+      document.querySelectorAll("#toggleDurasi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===draft.durasi); });
+    }
+    if(draft.isReguler!==undefined){
+      state.currentIsReguler = draft.isReguler;
+      document.querySelectorAll("#toggleIsReguler button").forEach(function(b){ b.classList.toggle("active", (b.dataset.val==="on")===draft.isReguler); });
+    }
+    if(draft.pelaksanaBreakdown){ renderPelaksanaArea(draft.pelaksanaBreakdown); }
+    updateRenjaCalc();
+  } else if(draft.type==="insidentil"){
+    var it = draft.editingId ? state.insidentil.find(function(x){return x.id===draft.editingId;}) : null;
+    openInsidentilForm(it||null);
+    restoreFormFields("insidentilFormBackdrop", draft.fields);
+    if(draft.posisi){
+      state.currentPosisiInsidentil = draft.posisi;
+      document.querySelectorAll("#toggleInsidentilPosisi button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===draft.posisi); });
+      updateInsidentilPosisiUI();
+    }
+  } else if(draft.type==="evaluasi"){
+    var k2 = draft.editingId ? state.kegiatan.find(function(x){return x.id===draft.editingId;}) : null;
+    if(k2){
+      openEvaluasiForm(k2);
+      restoreFormFields("evaluasiFormBackdrop", draft.fields);
+      if(draft.statusPelaksanaan){
+        state.currentStatusPelaksanaan = draft.statusPelaksanaan;
+        document.querySelectorAll("#toggleStatusPelaksanaan button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===draft.statusPelaksanaan); });
+      }
+      if(draft.capaianTarget){
+        state.currentCapaianTarget = draft.capaianTarget;
+        document.querySelectorAll("#toggleCapaianTarget button").forEach(function(b){ b.classList.toggle("active", b.dataset.val===draft.capaianTarget); });
+      }
+      updateAnggaranSelisih();
+    } else {
+      toast("Kegiatan yang dievaluasi sudah tidak ada, draft dibuang");
+      clearDraft();
+    }
+  }
+  draftDirty = true;
+});
+draftRestoreBackdrop.addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
+
 // ================= INIT =================
 load();
 requestAgendaNotificationPermission();
 scheduleAllFutureAgendaNotifications();
 renderAll();
+checkDraftOnLoad();
+checkPengingatInstansiPopup();
 
 // ================= App Lock (PIN) =================
 function isNativePlatformCheck(){ return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); }
